@@ -1,8 +1,8 @@
 package com.alejandro.pokesearch.core.domain
 
-enum class AttributeKind(val apiPath: String) {
-    TYPE(apiPath = "type"),
-    POCKET(apiPath = "item-pocket"),
+enum class AttributeKind {
+    TYPE,
+    POCKET,
 }
 
 sealed interface AttributeFilter {
