@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Domain enums are pure Kotlin; their keep rules live in src/main/keepRules/rules.keep. -->
+    <issue id="MissingKeepAnnotation">
+        <ignore path="src/main/java/com/alejandro/pokesearch/core/domain/**" />
+    </issue>
+</lint>

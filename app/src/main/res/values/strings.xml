@@ -1,3 +1,66 @@
 <resources>
     <string name="app_name">PokeSearch</string>
+
+    <!-- Wordmark -->
+    <string name="wordmark_prefix" translatable="false">Poke</string>
+    <string name="wordmark_suffix" translatable="false">Search</string>
+
+    <!-- Placeholder destinations (removed as each feature lands) -->
+    <string name="placeholder_title">En construcción</string>
+    <string name="placeholder_message">Esta pantalla llegará en un próximo incremento.</string>
+
+    <!-- Categories -->
+    <string name="category_all">Todas</string>
+    <string name="category_pokemon">Pokémon</string>
+    <string name="category_item_category">Categorías de items</string>
+    <string name="category_region">Regiones</string>
+    <string name="category_generation">Generaciones</string>
+    <string name="filter_all">Todos</string>
+
+    <!-- FavoriteButton -->
+    <string name="favorite_add">Añadir a favoritos</string>
+    <string name="favorite_remove">Quitar de favoritos</string>
+    <string name="favorite_state_on">En favoritos</string>
+    <string name="favorite_state_off">No está en favoritos</string>
+
+    <!-- Favorites count -->
+    <string name="favorites_none">Sin favoritos</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d favorito</item>
+        <item quantity="many">%d favoritos</item>
+        <item quantity="other">%d favoritos</item>
+    </plurals>
+
+    <!-- Shared states -->
+    <string name="offline_banner">Sin conexión · mostrando datos guardados</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="paging_error">No se pudieron cargar más resultados</string>
+    <string name="loading">Cargando</string>
+
+    <!-- LocalSearchField -->
+    <string name="search_favorites_hint">Buscar en favoritos</string>
+    <string name="search_clear">Borrar búsqueda</string>
+
+    <!-- UserMenu -->
+    <string name="user_menu_open">Abrir menú de usuario</string>
+    <string name="user_menu_reset">Restablecer mis datos</string>
+    <string name="user_menu_logout">Cerrar sesión</string>
+
+    <!-- Dialogs -->
+    <string name="action_cancel">Cancelar</string>
+    <string name="logout_title">¿Cerrar sesión?</string>
+    <string name="logout_confirm">Cerrar sesión</string>
+    <plurals name="logout_message">
+        <item quantity="one">Tu %1$d favorito seguirá guardado en este dispositivo. La próxima vez, elige %2$s en “Continuar como”.</item>
+        <item quantity="many">Tus %1$d favoritos seguirán guardados en este dispositivo. La próxima vez, elige %2$s en “Continuar como”.</item>
+        <item quantity="other">Tus %1$d favoritos seguirán guardados en este dispositivo. La próxima vez, elige %2$s en “Continuar como”.</item>
+    </plurals>
+    <string name="logout_message_no_favorites">La próxima vez, elige %1$s en “Continuar como”.</string>
+    <string name="reset_title">¿Restablecer tus datos?</string>
+    <string name="reset_confirm">Restablecer</string>
+    <plurals name="reset_message">
+        <item quantity="one">Se eliminará tu %1$d favorito de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
+        <item quantity="many">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
+        <item quantity="other">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
+    </plurals>
 </resources>
