@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single-color Poké Ball for themed icons (Android 13+); the launcher tints it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="1.1"
+        android:scaleY="1.1">
+        <!-- Top half with a notch around the button -->
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M26.11,51.5A28,28 0,0 1,81.89 51.5L64.2,51.5A10.5,10.5 0,0 0,43.8 51.5z" />
+        <!-- Bottom half outline -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF000000"
+            android:strokeWidth="3"
+            android:pathData="M27.6,56.5A26.5,26.5 0,0 0,80.4 56.5" />
+        <!-- Button -->
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M47.5,54a6.5,6.5 0,1 0,13 0a6.5,6.5 0,1 0,-13 0z" />
+    </group>
+</vector>
