@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.alejandro.pokesearch.app.AppDatabase
 import com.alejandro.pokesearch.feature.auth.adapter.out.room.SessionDao
 import com.alejandro.pokesearch.feature.auth.adapter.out.room.UserDao
+import com.alejandro.pokesearch.feature.catalog.adapter.out.room.CatalogDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,4 +26,7 @@ object DatabaseModule {
 
     @Provides
     fun provideSessionDao(database: AppDatabase): SessionDao = database.sessionDao()
+
+    @Provides
+    fun provideCatalogDao(database: AppDatabase): CatalogDao = database.catalogDao()
 }
