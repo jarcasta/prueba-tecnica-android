@@ -42,6 +42,16 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// Stability reports for recomposition analysis, off in normal builds:
+// ./gradlew :app:compileReleaseKotlin -PcomposeCompilerReports=true
+// Output: app/build/compose_compiler/*-classes.txt, *-composables.txt, *-module.json
+if (providers.gradleProperty("composeCompilerReports").orNull == "true") {
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
+        metricsDestination = layout.buildDirectory.dir("compose_compiler")
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
