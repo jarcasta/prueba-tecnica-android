@@ -54,7 +54,6 @@
     <string name="category_item_category">Categorías de items</string>
     <string name="category_region">Regiones</string>
     <string name="category_generation">Generaciones</string>
-    <string name="filter_all">Todos</string>
 
     <!-- FavoriteButton -->
     <string name="favorite_add">Añadir a favoritos</string>

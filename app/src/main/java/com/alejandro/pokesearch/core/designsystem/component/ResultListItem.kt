@@ -2,10 +2,8 @@ package com.alejandro.pokesearch.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -42,25 +40,12 @@ fun ResultListItem(
     onToggleFavorite: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    typeNames: List<String> = emptyList(),
-    secondaryLabel: String? = null,
 ) {
     ListItem(
         headlineContent = {
             Text(text = name, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
-        supportingContent = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Text(text = number, maxLines = 1)
-                typeNames.forEach { TypeTag(typeName = it) }
-                if (secondaryLabel != null) {
-                    Text(text = "· $secondaryLabel", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
-        },
+        supportingContent = { Text(text = number, maxLines = 1) },
         leadingContent = { ResultLeadingVisual(leading = leading, contentDescription = name) },
         trailingContent = { FavoriteButton(isFavorite = isFavorite, onToggle = onToggleFavorite) },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
@@ -103,7 +88,6 @@ private fun ResultListItemPreview() {
                 name = "Charizard",
                 number = "#006",
                 leading = ResultLeading.Sprite(imageUrl = null),
-                typeNames = listOf("fire", "flying"),
                 isFavorite = true,
                 onToggleFavorite = {},
                 onClick = {},
@@ -112,7 +96,6 @@ private fun ResultListItemPreview() {
                 name = "Healing",
                 number = "#027",
                 leading = ResultLeading.PocketIcon(pocketName = "medicine"),
-                secondaryLabel = "medicine",
                 isFavorite = false,
                 onToggleFavorite = {},
                 onClick = {},
@@ -121,7 +104,6 @@ private fun ResultListItemPreview() {
                 name = "Generation VIII",
                 number = "#8",
                 leading = ResultLeading.Monogram(text = "VIII"),
-                secondaryLabel = "Galar · 96 especies",
                 isFavorite = false,
                 onToggleFavorite = {},
                 onClick = {},
