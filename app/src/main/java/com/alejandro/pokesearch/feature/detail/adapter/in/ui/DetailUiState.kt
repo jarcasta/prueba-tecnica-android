@@ -17,3 +17,7 @@ sealed interface DetailUiState {
         val isOffline: Boolean = false,
     ) : DetailUiState
 }
+
+sealed interface DetailEffect {
+    data object ShowStaleData : DetailEffect
+}

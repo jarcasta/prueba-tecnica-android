@@ -66,6 +66,7 @@ private val HeaderBadgeSize = 120.dp
 
 private const val CONTENT_TYPE_ITEM = "item"
 private const val CONTENT_TYPE_POKEDEX = "pokedex"
+private const val CONTENT_TYPE_SPECIES = "species"
 private val ItemSpriteSize = 40.dp
 private const val ITEM_SPRITE_VIEWPORT = 40f
 
@@ -172,7 +173,11 @@ internal fun GenerationDetailContent(
             sheetItem("species") {
                 DetailSection(title = stringResource(R.string.detail_species_sample)) {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                        items(items = detail.speciesSample, key = { it.key.id.value }) { species ->
+                        items(
+                            items = detail.speciesSample,
+                            key = { it.key.id.value },
+                            contentType = { CONTENT_TYPE_SPECIES },
+                        ) { species ->
                             SpeciesCard(species = species, onClick = { onSpeciesClick(species.key) })
                         }
                     }

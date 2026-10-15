@@ -22,10 +22,13 @@ fun DetailRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val staleDataMessage = stringResource(R.string.stale_data)
-    val showStaleData = (state as? DetailUiState.Content)?.let { it.isStale && !it.isOffline } == true
 
-    LaunchedEffect(showStaleData) {
-        if (showStaleData) snackbarHostState.showSnackbar(staleDataMessage)
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                DetailEffect.ShowStaleData -> snackbarHostState.showSnackbar(staleDataMessage)
+            }
+        }
     }
 
     DetailScreen(

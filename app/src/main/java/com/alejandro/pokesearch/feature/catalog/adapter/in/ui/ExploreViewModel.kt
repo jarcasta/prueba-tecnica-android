@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import com.alejandro.pokesearch.core.domain.DomainError
 import com.alejandro.pokesearch.core.domain.NetworkMonitor
 import com.alejandro.pokesearch.core.domain.PokeCategory
 import com.alejandro.pokesearch.core.domain.reconnections
@@ -20,7 +21,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -37,6 +37,8 @@ data class ExploreUiState(
 
 sealed interface ExploreEffect {
     data object RetryFailedLoads : ExploreEffect
+
+    data object ShowStaleData : ExploreEffect
 }
 
 @HiltViewModel
@@ -52,7 +54,7 @@ class ExploreViewModel @Inject constructor(
 
     private val isOnline: StateFlow<Boolean> = networkMonitor.isOnline.stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
-    private val hasLoadError = MutableStateFlow(false)
+    private var listState: ExploreListState = ExploreListState.Loading
 
     private val effectChannel = Channel<ExploreEffect>(Channel.BUFFERED)
     val effects: Flow<ExploreEffect> = effectChannel.receiveAsFlow()
@@ -64,7 +66,7 @@ class ExploreViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             isOnline.reconnections().collect {
-                if (hasLoadError.value) effectChannel.send(ExploreEffect.RetryFailedLoads)
+                if (listState.hasLoadError()) effectChannel.send(ExploreEffect.RetryFailedLoads)
             }
         }
     }
@@ -83,8 +85,12 @@ class ExploreViewModel @Inject constructor(
         savedStateHandle[KEY_CATEGORY] = category
     }
 
-    fun onLoadErrorChange(hasError: Boolean) {
-        hasLoadError.value = hasError
+    fun onListStateChange(state: ExploreListState) {
+        val previous = listState
+        listState = state
+        if (state.staleDataNotice() && !previous.staleDataNotice()) {
+            viewModelScope.launch { effectChannel.send(ExploreEffect.ShowStaleData) }
+        }
     }
 
     fun onToggleFavorite(item: CatalogItemUi) {
@@ -97,3 +103,12 @@ class ExploreViewModel @Inject constructor(
         const val KEY_CATEGORY = "explore_category"
     }
 }
+
+private fun ExploreListState.hasLoadError(): Boolean = when (this) {
+    is ExploreListState.Error -> true
+    is ExploreListState.Content -> footer == PagingFooterState.Error || staleDataError != null
+    ExploreListState.Loading, ExploreListState.Empty -> false
+}
+
+private fun ExploreListState.staleDataNotice(): Boolean =
+    (this as? ExploreListState.Content)?.staleDataError?.let { it != DomainError.NoConnection } == true

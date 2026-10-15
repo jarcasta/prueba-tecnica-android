@@ -11,10 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.alejandro.pokesearch.R
-import com.alejandro.pokesearch.core.domain.DomainError
 import com.alejandro.pokesearch.core.domain.EntryKey
 
 @Composable
@@ -26,24 +24,17 @@ fun ExploreRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val items = viewModel.catalog.collectAsLazyPagingItems()
-    val refresh = items.loadState.refresh
-    val append = items.loadState.append
-    val listState = exploreListState(refresh, append, items.itemCount)
+    val listState = exploreListState(items.loadState.refresh, items.loadState.append, items.itemCount)
     val snackbarHostState = remember { SnackbarHostState() }
     val staleDataMessage = stringResource(R.string.stale_data)
-    val showStaleData = (listState as? ExploreListState.Content)?.staleDataError
-        ?.let { it != DomainError.NoConnection } == true
-    val hasLoadError = refresh is LoadState.Error || append is LoadState.Error
     val currentItems by rememberUpdatedState(items)
 
-    LaunchedEffect(refresh, showStaleData) {
-        if (showStaleData) snackbarHostState.showSnackbar(staleDataMessage)
-    }
-    LaunchedEffect(hasLoadError) { viewModel.onLoadErrorChange(hasLoadError) }
+    LaunchedEffect(listState) { viewModel.onListStateChange(listState) }
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 ExploreEffect.RetryFailedLoads -> currentItems.retry()
+                ExploreEffect.ShowStaleData -> snackbarHostState.showSnackbar(staleDataMessage)
             }
         }
     }

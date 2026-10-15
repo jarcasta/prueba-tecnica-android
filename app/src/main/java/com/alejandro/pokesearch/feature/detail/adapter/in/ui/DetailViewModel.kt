@@ -19,21 +19,24 @@ import com.alejandro.pokesearch.feature.favorites.application.ToggleFavoriteUseC
 import com.alejandro.pokesearch.feature.favorites.domain.FavoriteSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class DetailViewModel internal constructor(
     route: Detail,
-    observeEntryDetail: ObserveEntryDetailUseCase,
+    private val observeEntryDetail: ObserveEntryDetailUseCase,
     private val refreshEntryDetail: RefreshEntryDetailUseCase,
     observeFavoriteKeys: ObserveFavoriteKeysUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
@@ -61,6 +64,9 @@ class DetailViewModel internal constructor(
     private val refreshState = MutableStateFlow<RefreshState>(RefreshState.Running)
 
     private val isOnline: StateFlow<Boolean> = networkMonitor.isOnline.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    private val effectChannel = Channel<DetailEffect>(Channel.BUFFERED)
+    val effects: Flow<DetailEffect> = effectChannel.receiveAsFlow()
 
     private val state: Flow<DetailUiState> =
         key?.let { detailState(it, observeEntryDetail(it), observeFavoriteKeys()) }
@@ -90,10 +96,19 @@ class DetailViewModel internal constructor(
         val key = key ?: return
         refreshState.value = RefreshState.Running
         viewModelScope.launch {
-            refreshState.value = when (val result = refreshEntryDetail(key)) {
-                is Outcome.Success -> RefreshState.Done
-                is Outcome.Failure -> RefreshState.Failed(result.error)
+            when (val result = refreshEntryDetail(key)) {
+                is Outcome.Success -> refreshState.value = RefreshState.Done
+                is Outcome.Failure -> {
+                    refreshState.value = RefreshState.Failed(result.error)
+                    notifyStaleCache(key)
+                }
             }
+        }
+    }
+
+    private suspend fun notifyStaleCache(key: EntryKey) {
+        if (isOnline.value && observeEntryDetail(key).first() != null) {
+            effectChannel.send(DetailEffect.ShowStaleData)
         }
     }
 
