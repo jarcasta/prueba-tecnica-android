@@ -1,22 +1,21 @@
 package com.alejandro.pokesearch.feature.detail.adapter.`in`.ui
 
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.ZeroCornerSize
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.alejandro.pokesearch.R
@@ -131,6 +131,10 @@ fun DetailScreen(
     }
 }
 
+private const val CONTENT_TYPE_HEADER = "header"
+private const val CONTENT_TYPE_TITLE = "title"
+private val SheetLipHeight = 28.dp
+
 @Composable
 internal fun DetailLayout(
     name: String,
@@ -138,33 +142,21 @@ internal fun DetailLayout(
     headerColor: Color,
     contentPadding: PaddingValues,
     header: @Composable () -> Unit,
-    body: @Composable ColumnScope.() -> Unit,
+    content: LazyListScope.() -> Unit,
 ) {
-    val sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize)
-    Column(
-        Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = contentPadding.calculateBottomPadding()),
+    LazyColumn(
+        contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + SheetLipHeight),
+        modifier = Modifier.fillMaxSize(),
     ) {
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(headerColor)
-                .padding(top = contentPadding.calculateTopPadding() + Spacing.xl, bottom = 44.dp),
-        ) {
-            header()
+        item(key = CONTENT_TYPE_HEADER, contentType = CONTENT_TYPE_HEADER) {
+            DetailHeader(headerColor = headerColor, topPadding = contentPadding.calculateTopPadding(), content = header)
         }
-        Column(
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
-            modifier = Modifier
-                .offset(y = (-28).dp)
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface, sheetShape)
-                .padding(horizontal = Spacing.xl, vertical = 28.dp),
-        ) {
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+        item(key = CONTENT_TYPE_TITLE, contentType = CONTENT_TYPE_TITLE) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                modifier = Modifier.padding(horizontal = Spacing.xl),
+            ) {
                 Text(
                     text = name,
                     style = MaterialTheme.typography.headlineMedium,
@@ -173,7 +165,39 @@ internal fun DetailLayout(
                 )
                 Text(text = number, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            body()
+        }
+        content()
+    }
+}
+@Composable
+private fun DetailHeader(headerColor: Color, topPadding: Dp, content: @Composable () -> Unit) {
+    val sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(headerColor)
+            .padding(top = topPadding + Spacing.xl),
+    ) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) { content() }
+        Spacer(Modifier.height(Spacing.md))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(SheetLipHeight)
+                .background(MaterialTheme.colorScheme.surface, sheetShape),
+        )
+    }
+}
+
+internal fun LazyListScope.sheetItem(key: String, content: @Composable () -> Unit) {
+    item(key = key, contentType = key) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.xl)
+                .padding(top = Spacing.lg),
+        ) {
+            content()
         }
     }
 }
@@ -188,32 +212,40 @@ private fun PokemonDetailContent(detail: PokemonDetail, contentPadding: PaddingV
         contentPadding = contentPadding,
         header = { AsyncImage(model = detail.artworkUrl, contentDescription = name, modifier = Modifier.size(200.dp)) },
     ) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            detail.types.forEach { TypeChip(typeName = it) }
+        sheetItem("types") {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                detail.types.forEach { TypeChip(typeName = it) }
+            }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            InfoCard(
-                label = stringResource(R.string.detail_height),
-                value = stringResource(R.string.detail_height_value, formatMeasure(detail.heightMeters)),
-                modifier = Modifier.weight(1f),
-            )
-            InfoCard(
-                label = stringResource(R.string.detail_weight),
-                value = stringResource(R.string.detail_weight_value, formatMeasure(detail.weightKg)),
-                modifier = Modifier.weight(1f),
-            )
+        sheetItem("measures") {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                InfoCard(
+                    label = stringResource(R.string.detail_height),
+                    value = stringResource(R.string.detail_height_value, formatMeasure(detail.heightMeters)),
+                    modifier = Modifier.weight(1f),
+                )
+                InfoCard(
+                    label = stringResource(R.string.detail_weight),
+                    value = stringResource(R.string.detail_weight_value, formatMeasure(detail.weightKg)),
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
-        DetailSection(title = stringResource(R.string.detail_abilities)) {
-            InfoChipRow(names = detail.abilities.map { displayNameOf(PokeCategory.POKEMON, it) })
+        sheetItem("abilities") {
+            DetailSection(title = stringResource(R.string.detail_abilities)) {
+                InfoChipRow(names = detail.abilities.map { displayNameOf(PokeCategory.POKEMON, it) })
+            }
         }
-        DetailSection(title = stringResource(R.string.detail_base_stats)) {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                detail.stats.forEachIndexed { index, stat ->
-                    StatBar(
-                        label = statLabel(stat.name),
-                        value = stat.value,
-                        animationDelayMillis = index * STAT_BAR_STAGGER_MILLIS,
-                    )
+        sheetItem("stats") {
+            DetailSection(title = stringResource(R.string.detail_base_stats)) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                    detail.stats.forEachIndexed { index, stat ->
+                        StatBar(
+                            label = statLabel(stat.name),
+                            value = stat.value,
+                            animationDelayMillis = index * STAT_BAR_STAGGER_MILLIS,
+                        )
+                    }
                 }
             }
         }
@@ -236,14 +268,19 @@ internal fun InfoCard(label: String, value: String, modifier: Modifier = Modifie
 @Composable
 internal fun DetailSection(title: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.semantics { heading() },
-        )
+        SectionTitle(title)
         content()
     }
+}
+
+@Composable
+internal fun SectionTitle(title: String, modifier: Modifier = Modifier) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.semantics { heading() },
+    )
 }
 
 @Composable

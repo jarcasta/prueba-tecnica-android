@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
@@ -24,10 +26,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.Group
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.RenderVectorGroup
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -36,7 +42,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import coil3.compose.SubcomposeAsyncImage
 import com.alejandro.pokesearch.R
 import com.alejandro.pokesearch.core.designsystem.component.Monogram
 import com.alejandro.pokesearch.core.designsystem.component.PokeIcons
@@ -58,11 +63,18 @@ import com.alejandro.pokesearch.feature.detail.domain.SpeciesSummary
 
 private val HeaderBadgeSize = 120.dp
 
+private const val CONTENT_TYPE_ITEM = "item"
+private const val CONTENT_TYPE_POKEDEX = "pokedex"
+private val ItemSpriteSize = 40.dp
+private const val ITEM_SPRITE_VIEWPORT = 40f
+
 @Composable
 internal fun ItemCategoryDetailContent(detail: ItemCategoryDetail, contentPadding: PaddingValues) {
     val pocketIcon = PokeIcons.pocket(detail.pocket)
     val pocketName = displayNameOf(PokeCategory.ITEM_CATEGORY, detail.pocket)
     val pocketDescription = stringResource(R.string.detail_pocket_description, pocketName)
+    val itemsTitle = stringResource(R.string.detail_items_title, detail.items.size)
+    val spriteFallback = rememberItemSpriteFallback(pocketIcon)
     DetailLayout(
         name = displayNameOf(PokeCategory.ITEM_CATEGORY, detail.name),
         number = formatEntryNumber(detail.key.id),
@@ -70,21 +82,22 @@ internal fun ItemCategoryDetailContent(detail: ItemCategoryDetail, contentPaddin
         contentPadding = contentPadding,
         header = { PocketBadge(pocketIcon) },
     ) {
-        AssistChip(
-            onClick = {},
-            label = { Text(pocketName) },
-            leadingIcon = {
-                Icon(imageVector = pocketIcon, contentDescription = null, modifier = Modifier.size(AssistChipDefaults.IconSize))
-            },
-            modifier = Modifier.clearAndSetSemantics { contentDescription = pocketDescription },
-        )
-        DetailSection(title = stringResource(R.string.detail_items_title, detail.items.size)) {
-            Column {
-                detail.items.forEachIndexed { index, item ->
-                    key(item.name) {
-                        if (index > 0) HorizontalDivider()
-                        ItemRow(item = item, fallbackIcon = pocketIcon)
-                    }
+        sheetItem("pocket") {
+            AssistChip(
+                onClick = {},
+                label = { Text(pocketName) },
+                leadingIcon = {
+                    Icon(imageVector = pocketIcon, contentDescription = null, modifier = Modifier.size(AssistChipDefaults.IconSize))
+                },
+                modifier = Modifier.clearAndSetSemantics { contentDescription = pocketDescription },
+            )
+        }
+        if (detail.items.isNotEmpty()) {
+            sheetItem("items_title") { SectionTitle(itemsTitle, Modifier.padding(bottom = Spacing.xs)) }
+            itemsIndexed(items = detail.items, key = { _, item -> "item:${item.name}" }, contentType = { _, _ -> CONTENT_TYPE_ITEM }) { index, item ->
+                Column(Modifier.padding(horizontal = Spacing.xl)) {
+                    if (index > 0) HorizontalDivider()
+                    ItemRow(item = item, spriteFallback = spriteFallback)
                 }
             }
         }
@@ -93,6 +106,7 @@ internal fun ItemCategoryDetailContent(detail: ItemCategoryDetail, contentPaddin
 
 @Composable
 internal fun RegionDetailContent(detail: RegionDetail, contentPadding: PaddingValues) {
+    val pokedexesTitle = stringResource(R.string.detail_pokedexes)
     DetailLayout(
         name = displayNameOf(PokeCategory.REGION, detail.name),
         number = formatEntryNumber(detail.key.id),
@@ -100,29 +114,28 @@ internal fun RegionDetailContent(detail: RegionDetail, contentPadding: PaddingVa
         contentPadding = contentPadding,
         header = { HeaderMonogram(monogramOf(PokeCategory.REGION, detail.name)) },
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            InfoCard(
-                label = stringResource(R.string.detail_main_generation),
-                value = detail.mainGeneration?.let { displayNameOf(PokeCategory.GENERATION, it) }
-                    ?: stringResource(R.string.detail_no_value),
-                modifier = Modifier.weight(1f),
-            )
-            InfoCard(
-                label = stringResource(R.string.detail_locations),
-                value = detail.locationCount.toString(),
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (detail.pokedexes.isNotEmpty()) {
-            DetailSection(title = stringResource(R.string.detail_pokedexes)) {
-                Column {
-                    detail.pokedexes.forEach { pokedex ->
-                        key(pokedex) { PokedexRow(displayNameOf(PokeCategory.REGION, pokedex)) }
-                    }
-                }
+        sheetItem("summary") {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                InfoCard(
+                    label = stringResource(R.string.detail_main_generation),
+                    value = detail.mainGeneration?.let { displayNameOf(PokeCategory.GENERATION, it) }
+                        ?: stringResource(R.string.detail_no_value),
+                    modifier = Modifier.weight(1f),
+                )
+                InfoCard(
+                    label = stringResource(R.string.detail_locations),
+                    value = detail.locationCount.toString(),
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
-        VersionGroupsSection(detail.versionGroups)
+        if (detail.pokedexes.isNotEmpty()) {
+            sheetItem("pokedexes_title") { SectionTitle(pokedexesTitle, Modifier.padding(bottom = Spacing.xs)) }
+            items(items = detail.pokedexes, key = { "pokedex:$it" }, contentType = { CONTENT_TYPE_POKEDEX }) { pokedex ->
+                PokedexRow(displayNameOf(PokeCategory.REGION, pokedex))
+            }
+        }
+        versionGroupsSection(detail.versionGroups)
     }
 }
 
@@ -139,24 +152,28 @@ internal fun GenerationDetailContent(
         contentPadding = contentPadding,
         header = { HeaderMonogram(monogramOf(PokeCategory.GENERATION, detail.name)) },
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            InfoCard(
-                label = stringResource(R.string.detail_main_region),
-                value = displayNameOf(PokeCategory.REGION, detail.mainRegion),
-                modifier = Modifier.weight(1f),
-            )
-            InfoCard(
-                label = stringResource(R.string.detail_new_species),
-                value = detail.newSpeciesCount.toString(),
-                modifier = Modifier.weight(1f),
-            )
+        sheetItem("summary") {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                InfoCard(
+                    label = stringResource(R.string.detail_main_region),
+                    value = displayNameOf(PokeCategory.REGION, detail.mainRegion),
+                    modifier = Modifier.weight(1f),
+                )
+                InfoCard(
+                    label = stringResource(R.string.detail_new_species),
+                    value = detail.newSpeciesCount.toString(),
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
-        VersionGroupsSection(detail.versionGroups)
+        versionGroupsSection(detail.versionGroups)
         if (detail.speciesSample.isNotEmpty()) {
-            DetailSection(title = stringResource(R.string.detail_species_sample)) {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                    items(items = detail.speciesSample, key = { it.key.id.value }) { species ->
-                        SpeciesCard(species = species, onClick = { onSpeciesClick(species.key) })
+            sheetItem("species") {
+                DetailSection(title = stringResource(R.string.detail_species_sample)) {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                        items(items = detail.speciesSample, key = { it.key.id.value }) { species ->
+                            SpeciesCard(species = species, onClick = { onSpeciesClick(species.key) })
+                        }
                     }
                 }
             }
@@ -164,11 +181,12 @@ internal fun GenerationDetailContent(
     }
 }
 
-@Composable
-private fun VersionGroupsSection(versionGroups: List<String>) {
+private fun LazyListScope.versionGroupsSection(versionGroups: List<String>) {
     if (versionGroups.isEmpty()) return
-    DetailSection(title = stringResource(R.string.detail_version_groups)) {
-        InfoChipRow(names = versionGroups.map { displayNameOf(PokeCategory.GENERATION, it) })
+    sheetItem("version_groups") {
+        DetailSection(title = stringResource(R.string.detail_version_groups)) {
+            InfoChipRow(names = versionGroups.map { displayNameOf(PokeCategory.GENERATION, it) })
+        }
     }
 }
 
@@ -192,18 +210,19 @@ private fun PocketBadge(icon: ImageVector) {
 }
 
 @Composable
-private fun ItemRow(item: CategoryItem, fallbackIcon: ImageVector) {
+private fun ItemRow(item: CategoryItem, spriteFallback: Painter) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
         modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
     ) {
-        SubcomposeAsyncImage(
+        AsyncImage(
             model = item.spriteUrl,
             contentDescription = null,
-            loading = { ItemSpriteFallback(fallbackIcon) },
-            error = { ItemSpriteFallback(fallbackIcon) },
-            modifier = Modifier.size(40.dp),
+            placeholder = spriteFallback,
+            error = spriteFallback,
+            fallback = spriteFallback,
+            modifier = Modifier.size(ItemSpriteSize),
         )
         Text(
             text = displayNameOf(PokeCategory.ITEM_CATEGORY, item.name),
@@ -214,9 +233,19 @@ private fun ItemRow(item: CategoryItem, fallbackIcon: ImageVector) {
 }
 
 @Composable
-private fun ItemSpriteFallback(icon: ImageVector) {
-    Box(contentAlignment = Alignment.Center) {
-        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun rememberItemSpriteFallback(icon: ImageVector): Painter {
+    val inset = (ITEM_SPRITE_VIEWPORT - icon.viewportWidth) / 2
+    return rememberVectorPainter(
+        defaultWidth = ItemSpriteSize,
+        defaultHeight = ItemSpriteSize,
+        viewportWidth = ITEM_SPRITE_VIEWPORT,
+        viewportHeight = ITEM_SPRITE_VIEWPORT,
+        name = icon.name,
+        tintColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        tintBlendMode = BlendMode.SrcIn,
+        autoMirror = icon.autoMirror,
+    ) { _, _ ->
+        Group(translationX = inset, translationY = inset) { RenderVectorGroup(group = icon.root) }
     }
 }
 
@@ -225,7 +254,7 @@ private fun PokedexRow(name: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.xl).heightIn(min = 48.dp),
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Rounded.MenuBook,
