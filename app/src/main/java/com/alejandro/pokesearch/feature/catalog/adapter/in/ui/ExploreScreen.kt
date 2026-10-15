@@ -39,7 +39,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.alejandro.pokesearch.R
 import com.alejandro.pokesearch.core.designsystem.component.CategorySelector
@@ -63,6 +62,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 private const val CONTENT_TYPE_ENTRY = "entry"
+private const val CONTENT_TYPE_PLACEHOLDER = "placeholder"
 private const val CONTENT_TYPE_HEADER = "header"
 private const val CONTENT_TYPE_FOOTER = "footer"
 
@@ -162,7 +162,7 @@ private fun CatalogList(
         items(
             count = items.itemCount,
             key = items.itemKey { it.listKey },
-            contentType = items.itemContentType { CONTENT_TYPE_ENTRY },
+            contentType = { index -> if (items.peek(index) == null) CONTENT_TYPE_PLACEHOLDER else CONTENT_TYPE_ENTRY },
         ) { index ->
             val item = items[index]
             if (item == null) {
