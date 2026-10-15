@@ -5,10 +5,6 @@
     <string name="wordmark_prefix" translatable="false">Poke</string>
     <string name="wordmark_suffix" translatable="false">Search</string>
 
-    <!-- Placeholder destinations (removed as each feature lands) -->
-    <string name="placeholder_title">En construcción</string>
-    <string name="placeholder_message">Esta pantalla llegará en un próximo incremento.</string>
-
     <!-- Login -->
     <string name="login_subtitle_first_use">Explora Pokémon, items, regiones y generaciones. Funciona también sin conexión.</string>
     <string name="login_subtitle_returning">Hola de nuevo. ¿Quién explora hoy?</string>
@@ -139,11 +135,11 @@
     <string name="explore_error_title_generation">No pudimos cargar las generaciones</string>
     <string name="explore_error_no_connection">No hay conexión y todavía no hay datos guardados de esta categoría en el dispositivo.</string>
     <string name="explore_error_not_found">La PokeAPI no encontró esta categoría.</string>
-    <string name="explore_error_server">La PokeAPI respondió con un error (%1$d). Inténtalo más tarde.</string>
-    <string name="explore_error_unexpected">Ocurrió un error inesperado. Inténtalo de nuevo.</string>
+    <string name="error_server">La PokeAPI respondió con un error (%1$d). Inténtalo más tarde.</string>
+    <string name="error_unexpected">Ocurrió un error inesperado. Inténtalo de nuevo.</string>
     <string name="explore_empty_title">Sin resultados</string>
     <string name="explore_empty_message">Esta categoría todavía no tiene entradas.</string>
-    <string name="explore_stale_data">No se pudo actualizar · mostrando datos guardados</string>
+    <string name="stale_data">No se pudo actualizar · mostrando datos guardados</string>
     <string name="back_to_top">Volver arriba</string>
 
     <!-- Favorites -->
@@ -156,4 +152,24 @@
     <string name="favorites_clear_filters">Limpiar filtros</string>
     <string name="favorite_removed">Se quitó %1$s de favoritos</string>
     <string name="action_undo">Deshacer</string>
+
+    <!-- Detail -->
+    <string name="detail_back">Volver</string>
+    <string name="detail_error_title">No pudimos cargar el detalle</string>
+    <string name="detail_error_no_connection">No hay conexión y este detalle todavía no está guardado en el dispositivo.</string>
+    <string name="detail_error_not_found">Esta entrada no existe en la PokeAPI.</string>
+    <string name="detail_coming_soon_title">Próximamente</string>
+    <string name="detail_coming_soon_message">El detalle de esta categoría llegará en una próxima versión.</string>
+    <string name="detail_height">Altura</string>
+    <string name="detail_weight">Peso</string>
+    <string name="detail_height_value">%1$s m</string>
+    <string name="detail_weight_value">%1$s kg</string>
+    <string name="detail_abilities">Habilidades</string>
+    <string name="detail_base_stats">Estadísticas base</string>
+    <string name="stat_hp">PS</string>
+    <string name="stat_attack">Ataque</string>
+    <string name="stat_defense">Defensa</string>
+    <string name="stat_special_attack">At. esp.</string>
+    <string name="stat_special_defense">Def. esp.</string>
+    <string name="stat_speed">Velocidad</string>
 </resources>

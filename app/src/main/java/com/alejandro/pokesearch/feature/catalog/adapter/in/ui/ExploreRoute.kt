@@ -49,5 +49,5 @@ fun ExploreRoute(
 
 @Composable
 private fun staleDataMessage(error: DomainError): String = stringResource(
-    if (error == DomainError.NoConnection) R.string.offline_banner else R.string.explore_stale_data,
+    if (error == DomainError.NoConnection) R.string.offline_banner else R.string.stale_data,
 )

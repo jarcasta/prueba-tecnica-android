@@ -222,8 +222,8 @@ private fun errorTitle(category: PokeCategory): String = stringResource(
 private fun errorMessage(error: DomainError): String = when (error) {
     DomainError.NoConnection -> stringResource(R.string.explore_error_no_connection)
     DomainError.NotFound -> stringResource(R.string.explore_error_not_found)
-    is DomainError.Server -> stringResource(R.string.explore_error_server, error.code)
-    DomainError.Unexpected -> stringResource(R.string.explore_error_unexpected)
+    is DomainError.Server -> stringResource(R.string.error_server, error.code)
+    DomainError.Unexpected -> stringResource(R.string.error_unexpected)
 }
 
 private fun previewEntry(category: PokeCategory, id: Int, name: String, favorite: Boolean = false): CatalogItemUi {

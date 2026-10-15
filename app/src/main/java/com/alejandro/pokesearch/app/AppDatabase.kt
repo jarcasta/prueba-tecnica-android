@@ -10,6 +10,8 @@ import com.alejandro.pokesearch.feature.auth.adapter.out.room.UserEntity
 import com.alejandro.pokesearch.feature.catalog.adapter.out.room.CatalogDao
 import com.alejandro.pokesearch.feature.catalog.adapter.out.room.CatalogEntryEntity
 import com.alejandro.pokesearch.feature.catalog.adapter.out.room.SyncStateEntity
+import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheDao
+import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheEntity
 import com.alejandro.pokesearch.feature.favorites.adapter.out.room.FavoriteDao
 import com.alejandro.pokesearch.feature.favorites.adapter.out.room.FavoriteEntity
 
@@ -20,14 +22,17 @@ import com.alejandro.pokesearch.feature.favorites.adapter.out.room.FavoriteEntit
         CatalogEntryEntity::class,
         SyncStateEntity::class,
         FavoriteEntity::class,
+        DetailCacheEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [
         //adds catalog_entries and sync_state.
         AutoMigration(from = 1, to = 2),
         //adds favorites.
         AutoMigration(from = 2, to = 3),
+        //adds detail_cache.
+        AutoMigration(from = 3, to = 4),
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -38,6 +43,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun catalogDao(): CatalogDao
 
     abstract fun favoriteDao(): FavoriteDao
+
+    abstract fun detailCacheDao(): DetailCacheDao
 
     companion object {
         const val NAME = "pokesearch.db"

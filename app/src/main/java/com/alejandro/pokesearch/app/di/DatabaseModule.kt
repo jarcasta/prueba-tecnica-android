@@ -6,6 +6,7 @@ import com.alejandro.pokesearch.app.AppDatabase
 import com.alejandro.pokesearch.feature.auth.adapter.out.room.SessionDao
 import com.alejandro.pokesearch.feature.auth.adapter.out.room.UserDao
 import com.alejandro.pokesearch.feature.catalog.adapter.out.room.CatalogDao
+import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheDao
 import com.alejandro.pokesearch.feature.favorites.adapter.out.room.FavoriteDao
 import dagger.Module
 import dagger.Provides
@@ -33,4 +34,7 @@ object DatabaseModule {
 
     @Provides
     fun provideFavoriteDao(database: AppDatabase): FavoriteDao = database.favoriteDao()
+
+    @Provides
+    fun provideDetailCacheDao(database: AppDatabase): DetailCacheDao = database.detailCacheDao()
 }

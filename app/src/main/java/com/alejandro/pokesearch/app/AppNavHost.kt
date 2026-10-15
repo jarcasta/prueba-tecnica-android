@@ -2,26 +2,21 @@ package com.alejandro.pokesearch.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Construction
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.alejandro.pokesearch.R
-import com.alejandro.pokesearch.core.designsystem.component.EmptyState
 import com.alejandro.pokesearch.feature.auth.adapter.`in`.ui.LoginRoute
 import com.alejandro.pokesearch.feature.catalog.adapter.`in`.ui.ExploreRoute
 import com.alejandro.pokesearch.feature.dashboard.adapter.`in`.ui.DashboardRoute
+import com.alejandro.pokesearch.feature.detail.adapter.`in`.ui.Detail
+import com.alejandro.pokesearch.feature.detail.adapter.`in`.ui.DetailRoute
 import com.alejandro.pokesearch.feature.favorites.adapter.`in`.ui.FavoritesRoute
 
 /**
@@ -80,18 +75,7 @@ fun AppNavHost(startDestination: Any, modifier: Modifier = Modifier) {
             )
         }
         composable<Detail> {
-            Scaffold { padding -> UnderConstruction(padding) }
+            DetailRoute(onBack = { navController.popBackStack() })
         }
     }
-}
-
-@Composable
-private fun UnderConstruction(contentPadding: PaddingValues) {
-    EmptyState(
-        icon = Icons.Rounded.Construction,
-        title = stringResource(R.string.placeholder_title),
-        message = stringResource(R.string.placeholder_message),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = contentPadding,
-    )
 }
