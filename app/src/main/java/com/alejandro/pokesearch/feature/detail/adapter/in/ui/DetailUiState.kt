@@ -14,5 +14,6 @@ sealed interface DetailUiState {
         val detail: EntryDetail,
         val isFavorite: Boolean,
         val isStale: Boolean,
+        val isOffline: Boolean = false,
     ) : DetailUiState
 }

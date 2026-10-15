@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -46,6 +47,7 @@ import com.alejandro.pokesearch.core.designsystem.component.ErrorState
 import com.alejandro.pokesearch.core.designsystem.component.FavoriteButton
 import com.alejandro.pokesearch.core.designsystem.component.LoadingState
 import com.alejandro.pokesearch.core.designsystem.component.LoadingVariant
+import com.alejandro.pokesearch.core.designsystem.component.OfflineBanner
 import com.alejandro.pokesearch.core.designsystem.component.STAT_BAR_STAGGER_MILLIS
 import com.alejandro.pokesearch.core.designsystem.component.StatBar
 import com.alejandro.pokesearch.core.designsystem.component.TypeChip
@@ -117,14 +119,22 @@ fun DetailScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = padding,
             )
-            is DetailUiState.Content -> when (val detail = state.detail) {
-                is PokemonDetail -> PokemonDetailContent(detail = detail, contentPadding = padding)
-                is ItemCategoryDetail -> ItemCategoryDetailContent(detail = detail, contentPadding = padding)
-                is RegionDetail -> RegionDetailContent(detail = detail, contentPadding = padding)
-                is GenerationDetail -> GenerationDetailContent(
-                    detail = detail,
-                    onSpeciesClick = onOpenEntry,
-                    contentPadding = padding,
+            is DetailUiState.Content -> Box(Modifier.fillMaxSize()) {
+                when (val detail = state.detail) {
+                    is PokemonDetail -> PokemonDetailContent(detail = detail, contentPadding = padding)
+                    is ItemCategoryDetail -> ItemCategoryDetailContent(detail = detail, contentPadding = padding)
+                    is RegionDetail -> RegionDetailContent(detail = detail, contentPadding = padding)
+                    is GenerationDetail -> GenerationDetailContent(
+                        detail = detail,
+                        onSpeciesClick = onOpenEntry,
+                        contentPadding = padding,
+                    )
+                }
+                OfflineBanner(
+                    visible = state.isOffline,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = padding.calculateTopPadding()),
                 )
             }
         }
@@ -138,12 +148,13 @@ private val SheetLipHeight = 28.dp
 @Composable
 internal fun DetailLayout(
     name: String,
-    number: String,
+    key: EntryKey,
     headerColor: Color,
     contentPadding: PaddingValues,
     header: @Composable () -> Unit,
     content: LazyListScope.() -> Unit,
 ) {
+    val numberDescription = stringResource(R.string.entry_number_description, key.id.value)
     LazyColumn(
         contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + SheetLipHeight),
         modifier = Modifier.fillMaxSize(),
@@ -163,7 +174,12 @@ internal fun DetailLayout(
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f, fill = false).semantics { heading() },
                 )
-                Text(text = number, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = formatEntryNumber(key.id),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.semantics { contentDescription = numberDescription },
+                )
             }
         }
         content()
@@ -207,7 +223,7 @@ private fun PokemonDetailContent(detail: PokemonDetail, contentPadding: PaddingV
     val name = displayNameOf(PokeCategory.POKEMON, detail.name)
     DetailLayout(
         name = name,
-        number = formatEntryNumber(detail.key.id),
+        key = detail.key,
         headerColor = PokeTheme.typeColors.detailTint(detail.types.firstOrNull() ?: FALLBACK_TYPE),
         contentPadding = contentPadding,
         header = { AsyncImage(model = detail.artworkUrl, contentDescription = name, modifier = Modifier.size(200.dp)) },

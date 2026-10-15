@@ -47,6 +47,7 @@ import com.alejandro.pokesearch.core.designsystem.component.EmptyState
 import com.alejandro.pokesearch.core.designsystem.component.ErrorState
 import com.alejandro.pokesearch.core.designsystem.component.LoadingState
 import com.alejandro.pokesearch.core.designsystem.component.LoadingVariant
+import com.alejandro.pokesearch.core.designsystem.component.OfflineBanner
 import com.alejandro.pokesearch.core.designsystem.component.PagingFooter
 import com.alejandro.pokesearch.core.designsystem.component.ResultListItem
 import com.alejandro.pokesearch.core.designsystem.theme.PokeSearchTheme
@@ -76,6 +77,7 @@ fun ExploreScreen(
     onRetry: () -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
+    isOffline: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
@@ -108,16 +110,20 @@ fun ExploreScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = bottomPadding,
                 )
-                is ExploreListState.Content -> CatalogList(
-                    category = category,
-                    items = items,
-                    content = listState,
-                    onItemClick = onItemClick,
-                    onToggleFavorite = onToggleFavorite,
-                    onRetry = onRetry,
-                    lazyListState = lazyListState,
-                    contentPadding = bottomPadding,
-                )
+                is ExploreListState.Content -> Column {
+                    // Stored entries are still useful offline; the banner says they may be old.
+                    OfflineBanner(visible = isOffline)
+                    CatalogList(
+                        category = category,
+                        items = items,
+                        content = listState,
+                        onItemClick = onItemClick,
+                        onToggleFavorite = onToggleFavorite,
+                        onRetry = onRetry,
+                        lazyListState = lazyListState,
+                        contentPadding = bottomPadding,
+                    )
+                }
             }
         }
         BackToTopButton(
@@ -161,6 +167,7 @@ private fun CatalogList(
                 ResultListItem(
                     name = item.name,
                     number = item.number,
+                    numberDescription = stringResource(R.string.entry_number_description, item.key.id.value),
                     leading = item.leading,
                     isFavorite = item.isFavorite,
                     onToggleFavorite = { onToggleFavorite(item) },
@@ -249,6 +256,7 @@ private fun ExplorePreview(
     listState: ExploreListState,
     category: PokeCategory = PokeCategory.POKEMON,
     entries: List<CatalogItemUi> = emptyList(),
+    isOffline: Boolean = false,
 ) {
     val notLoading = LoadState.NotLoading(endOfPaginationReached = false)
     val items = flowOf(
@@ -265,6 +273,7 @@ private fun ExplorePreview(
                 onToggleFavorite = {},
                 onRetry = {},
                 snackbarHostState = SnackbarHostState(),
+                isOffline = isOffline,
             )
         }
     }
@@ -305,4 +314,12 @@ private fun ExploreCompleteWithCountPreview() = ExplorePreview(
     listState = ExploreListState.Content(totalCount = 3, footer = PagingFooterState.None, staleDataError = null),
     category = PokeCategory.GENERATION,
     entries = previewGenerations,
+)
+
+@PreviewLightDark
+@Composable
+private fun ExploreOfflinePreview() = ExplorePreview(
+    listState = ExploreListState.Content(totalCount = null, footer = PagingFooterState.None, staleDataError = DomainError.NoConnection),
+    entries = previewPokemon,
+    isOffline = true,
 )

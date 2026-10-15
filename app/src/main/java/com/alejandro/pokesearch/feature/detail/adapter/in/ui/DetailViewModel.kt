@@ -7,8 +7,10 @@ import androidx.navigation.toRoute
 import com.alejandro.pokesearch.core.domain.DomainError
 import com.alejandro.pokesearch.core.domain.EntryId
 import com.alejandro.pokesearch.core.domain.EntryKey
+import com.alejandro.pokesearch.core.domain.NetworkMonitor
 import com.alejandro.pokesearch.core.domain.Outcome
 import com.alejandro.pokesearch.core.domain.getOrNull
+import com.alejandro.pokesearch.core.domain.reconnections
 import com.alejandro.pokesearch.feature.detail.application.ObserveEntryDetailUseCase
 import com.alejandro.pokesearch.feature.detail.application.RefreshEntryDetailUseCase
 import com.alejandro.pokesearch.feature.detail.domain.EntryDetail
@@ -35,6 +37,7 @@ class DetailViewModel internal constructor(
     private val refreshEntryDetail: RefreshEntryDetailUseCase,
     observeFavoriteKeys: ObserveFavoriteKeysUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
+    networkMonitor: NetworkMonitor,
 ) : ViewModel() {
 
     @Inject
@@ -44,10 +47,20 @@ class DetailViewModel internal constructor(
         refreshEntryDetail: RefreshEntryDetailUseCase,
         observeFavoriteKeys: ObserveFavoriteKeysUseCase,
         toggleFavorite: ToggleFavoriteUseCase,
-    ) : this(savedStateHandle.toRoute<Detail>(), observeEntryDetail, refreshEntryDetail, observeFavoriteKeys, toggleFavorite)
+        networkMonitor: NetworkMonitor,
+    ) : this(
+        savedStateHandle.toRoute<Detail>(),
+        observeEntryDetail,
+        refreshEntryDetail,
+        observeFavoriteKeys,
+        toggleFavorite,
+        networkMonitor,
+    )
 
     private val key: EntryKey? = EntryId.of(route.id).getOrNull()?.let { EntryKey(route.category, it) }
     private val refreshState = MutableStateFlow<RefreshState>(RefreshState.Running)
+
+    private val isOnline: StateFlow<Boolean> = networkMonitor.isOnline.stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     private val state: Flow<DetailUiState> =
         key?.let { detailState(it, observeEntryDetail(it), observeFavoriteKeys()) }
@@ -57,6 +70,11 @@ class DetailViewModel internal constructor(
 
     init {
         refresh()
+        viewModelScope.launch {
+            isOnline.reconnections().collect {
+                if (refreshState.value is RefreshState.Failed) refresh()
+            }
+        }
     }
 
     fun onRetry() = refresh()
@@ -87,9 +105,15 @@ class DetailViewModel internal constructor(
         detail,
         refreshState,
         favoriteKeys.map { key in it }.distinctUntilChanged(),
-    ) { cached, refresh, isFavorite ->
+        isOnline,
+    ) { cached, refresh, isFavorite, online ->
         when {
-            cached != null -> DetailUiState.Content(cached, isFavorite, isStale = refresh is RefreshState.Failed)
+            cached != null -> DetailUiState.Content(
+                detail = cached,
+                isFavorite = isFavorite,
+                isStale = refresh is RefreshState.Failed,
+                isOffline = !online,
+            )
             refresh is RefreshState.Failed -> DetailUiState.Error(refresh.error)
             else -> DetailUiState.Loading
         }

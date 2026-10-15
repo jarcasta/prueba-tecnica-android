@@ -16,6 +16,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -31,6 +34,7 @@ sealed interface ResultLeading {
     data class Monogram(val text: String) : ResultLeading
 }
 
+
 @Composable
 fun ResultListItem(
     name: String,
@@ -40,26 +44,39 @@ fun ResultListItem(
     onToggleFavorite: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    numberDescription: String? = null,
 ) {
     ListItem(
         headlineContent = {
             Text(text = name, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
-        supportingContent = { Text(text = number, maxLines = 1) },
-        leadingContent = { ResultLeadingVisual(leading = leading, contentDescription = name) },
+        supportingContent = {
+            Text(
+                text = number,
+                maxLines = 1,
+                modifier = if (numberDescription != null) {
+                    Modifier.semantics { contentDescription = numberDescription }
+                } else {
+                    Modifier
+                },
+            )
+        },
+        leadingContent = { ResultLeadingVisual(leading = leading) },
         trailingContent = { FavoriteButton(isFavorite = isFavorite, onToggle = onToggleFavorite) },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier
+            .semantics(mergeDescendants = true) {}
+            .clickable(onClick = onClick),
     )
 }
 
 @Composable
-private fun ResultLeadingVisual(leading: ResultLeading, contentDescription: String) {
+private fun ResultLeadingVisual(leading: ResultLeading) {
     val size = 56.dp
     when (leading) {
         is ResultLeading.Sprite -> AsyncImage(
             model = leading.imageUrl,
-            contentDescription = contentDescription,
+            contentDescription = null,
             modifier = Modifier
                 .size(size)
                 .clip(MaterialTheme.shapes.medium)
@@ -75,7 +92,7 @@ private fun ResultLeadingVisual(leading: ResultLeading, contentDescription: Stri
                 Icon(imageVector = PokeIcons.pocket(leading.pocketName), contentDescription = null)
             }
         }
-        is ResultLeading.Monogram -> Monogram(text = leading.text, size = size)
+        is ResultLeading.Monogram -> Monogram(text = leading.text, size = size, modifier = Modifier.clearAndSetSemantics {})
     }
 }
 

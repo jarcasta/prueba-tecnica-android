@@ -54,6 +54,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -137,7 +139,7 @@ private fun FirstUseContent(form: @Composable () -> Unit) {
                 Icon(imageVector = Icons.Rounded.TravelExplore, contentDescription = null, modifier = Modifier.size(32.dp))
             }
         }
-        Wordmark(style = MaterialTheme.typography.displaySmall)
+        Wordmark(style = MaterialTheme.typography.displaySmall, modifier = Modifier.semantics { heading() })
         Text(
             text = stringResource(R.string.login_subtitle_first_use),
             style = MaterialTheme.typography.bodyLarge,
@@ -167,7 +169,7 @@ private fun ReturningContent(
         modifier = Modifier.padding(top = Spacing.xxl),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            Wordmark(style = MaterialTheme.typography.displaySmall)
+            Wordmark(style = MaterialTheme.typography.displaySmall, modifier = Modifier.semantics { heading() })
             Text(
                 text = stringResource(R.string.login_subtitle_returning),
                 style = MaterialTheme.typography.bodyLarge,

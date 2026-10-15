@@ -70,6 +70,7 @@
     <string name="action_retry">Reintentar</string>
     <string name="paging_error">No se pudieron cargar más resultados</string>
     <string name="loading">Cargando</string>
+    <string name="entry_number_description">número %1$d</string>
 
     <!-- LocalSearchField -->
     <string name="search_favorites_hint">Buscar en favoritos</string>

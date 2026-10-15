@@ -99,6 +99,7 @@ fun FavoritesScreen(
                         ResultListItem(
                             name = item.name,
                             number = item.number,
+                            numberDescription = stringResource(R.string.entry_number_description, item.key.id.value),
                             leading = item.leading,
                             isFavorite = true,
                             onToggleFavorite = { onRemoveFavorite(item) },

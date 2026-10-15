@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -77,7 +78,7 @@ internal fun ItemCategoryDetailContent(detail: ItemCategoryDetail, contentPaddin
     val spriteFallback = rememberItemSpriteFallback(pocketIcon)
     DetailLayout(
         name = displayNameOf(PokeCategory.ITEM_CATEGORY, detail.name),
-        number = formatEntryNumber(detail.key.id),
+        key = detail.key,
         headerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentPadding = contentPadding,
         header = { PocketBadge(pocketIcon) },
@@ -109,7 +110,7 @@ internal fun RegionDetailContent(detail: RegionDetail, contentPadding: PaddingVa
     val pokedexesTitle = stringResource(R.string.detail_pokedexes)
     DetailLayout(
         name = displayNameOf(PokeCategory.REGION, detail.name),
-        number = formatEntryNumber(detail.key.id),
+        key = detail.key,
         headerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentPadding = contentPadding,
         header = { HeaderMonogram(monogramOf(PokeCategory.REGION, detail.name)) },
@@ -147,7 +148,7 @@ internal fun GenerationDetailContent(
 ) {
     DetailLayout(
         name = displayNameOf(PokeCategory.GENERATION, detail.name),
-        number = formatEntryNumber(detail.key.id),
+        key = detail.key,
         headerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentPadding = contentPadding,
         header = { HeaderMonogram(monogramOf(PokeCategory.GENERATION, detail.name)) },
@@ -287,10 +288,12 @@ private fun SpeciesCard(species: SpeciesSummary, onClick: () -> Unit) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            val numberDescription = stringResource(R.string.entry_number_description, species.key.id.value)
             Text(
                 text = formatEntryNumber(species.key.id),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.semantics { contentDescription = numberDescription },
             )
         }
     }
