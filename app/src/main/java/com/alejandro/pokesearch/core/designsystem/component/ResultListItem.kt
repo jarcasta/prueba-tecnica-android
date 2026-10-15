@@ -2,9 +2,15 @@ package com.alejandro.pokesearch.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -24,6 +30,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.alejandro.pokesearch.core.designsystem.theme.PokeSearchTheme
+import com.alejandro.pokesearch.core.designsystem.theme.Spacing
 
 @Immutable
 sealed interface ResultLeading {
@@ -68,6 +75,23 @@ fun ResultListItem(
             .semantics(mergeDescendants = true) {}
             .clickable(onClick = onClick),
     )
+}
+
+@Composable
+fun ResultListItemPlaceholder(modifier: Modifier = Modifier) {
+    val block = MaterialTheme.colorScheme.surfaceContainerHigh
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .padding(horizontal = Spacing.md)
+            .clearAndSetSemantics {},
+    ) {
+        Box(Modifier.size(56.dp).background(block, MaterialTheme.shapes.medium))
+        Box(Modifier.fillMaxWidth(0.4f).height(14.dp).background(block, CircleShape))
+    }
 }
 
 @Composable

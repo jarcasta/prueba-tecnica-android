@@ -33,7 +33,7 @@ class OfflineFirstCatalogRepository @Inject constructor(
             config = PagingConfig(
                 pageSize = CatalogRemoteMediator.PAGE_SIZE,
                 prefetchDistance = PREFETCH_DISTANCE,
-                enablePlaceholders = false,
+                enablePlaceholders = true,
             ),
             remoteMediator = CatalogRemoteMediator(category, api, dao, clock),
             pagingSourceFactory = { dao.pagingSource(category) },

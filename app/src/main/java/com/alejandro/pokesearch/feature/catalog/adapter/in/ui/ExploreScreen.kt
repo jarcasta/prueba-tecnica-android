@@ -50,6 +50,7 @@ import com.alejandro.pokesearch.core.designsystem.component.LoadingVariant
 import com.alejandro.pokesearch.core.designsystem.component.OfflineBanner
 import com.alejandro.pokesearch.core.designsystem.component.PagingFooter
 import com.alejandro.pokesearch.core.designsystem.component.ResultListItem
+import com.alejandro.pokesearch.core.designsystem.component.ResultListItemPlaceholder
 import com.alejandro.pokesearch.core.designsystem.theme.PokeSearchTheme
 import com.alejandro.pokesearch.core.designsystem.theme.Spacing
 import com.alejandro.pokesearch.core.domain.DomainError
@@ -163,7 +164,10 @@ private fun CatalogList(
             key = items.itemKey { it.listKey },
             contentType = items.itemContentType { CONTENT_TYPE_ENTRY },
         ) { index ->
-            items[index]?.let { item ->
+            val item = items[index]
+            if (item == null) {
+                ResultListItemPlaceholder()
+            } else {
                 ResultListItem(
                     name = item.name,
                     number = item.number,
