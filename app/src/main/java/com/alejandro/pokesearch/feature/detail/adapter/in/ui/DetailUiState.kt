@@ -15,6 +15,4 @@ sealed interface DetailUiState {
         val isFavorite: Boolean,
         val isStale: Boolean,
     ) : DetailUiState
-
-    data object ComingSoon : DetailUiState
 }

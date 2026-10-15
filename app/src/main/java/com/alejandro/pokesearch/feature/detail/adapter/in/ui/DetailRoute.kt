@@ -10,10 +10,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alejandro.pokesearch.R
+import com.alejandro.pokesearch.core.domain.EntryKey
 
 @Composable
 fun DetailRoute(
     onBack: () -> Unit,
+    onOpenEntry: (EntryKey) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DetailViewModel = hiltViewModel(),
 ) {
@@ -33,5 +35,6 @@ fun DetailRoute(
         onRetry = viewModel::onRetry,
         snackbarHostState = snackbarHostState,
         modifier = modifier,
+        onOpenEntry = onOpenEntry,
     )
 }

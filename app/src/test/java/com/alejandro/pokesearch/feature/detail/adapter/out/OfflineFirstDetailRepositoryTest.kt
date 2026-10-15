@@ -4,10 +4,13 @@ import app.cash.turbine.test
 import com.alejandro.pokesearch.core.domain.DomainError
 import com.alejandro.pokesearch.core.domain.Outcome
 import com.alejandro.pokesearch.core.domain.PokeCategory
+import com.alejandro.pokesearch.core.network.NamedResourceDto
 import com.alejandro.pokesearch.feature.auth.testing.FixedClock
 import com.alejandro.pokesearch.feature.detail.adapter.out.remote.PokemonDto
+import com.alejandro.pokesearch.feature.detail.adapter.out.remote.RegionDto
 import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheEntity
 import com.alejandro.pokesearch.feature.detail.domain.PokemonDetail
+import com.alejandro.pokesearch.feature.detail.domain.RegionDetail
 import com.alejandro.pokesearch.feature.detail.testing.FakeDetailApi
 import com.alejandro.pokesearch.feature.detail.testing.FakeDetailCacheDao
 import com.alejandro.pokesearch.feature.detail.testing.pokemonDto
@@ -81,6 +84,28 @@ class OfflineFirstDetailRepositoryTest {
 
         assertEquals(Outcome.Failure(DomainError.NoConnection), result)
         repository.observe(pikachu).test { assertNull(awaitItem()) }
+    }
+
+    @Test
+    fun `cuando una region se refresca, entonces se cachea y despues se lee sin red`() = runTest {
+        val kanto = entryKey(PokeCategory.REGION, 1)
+        api.regionResponse = RegionDto(
+            name = "kanto",
+            mainGeneration = NamedResourceDto("generation-i", ""),
+            locations = listOf(NamedResourceDto("route-1", "")),
+        )
+
+        assertEquals(Outcome.Success(Unit), repository.refresh(kanto))
+        api.failure = IOException("offline")
+        clock.now += Duration.ofHours(1)
+
+        assertEquals("the cache is still fresh", Outcome.Success(Unit), repository.refresh(kanto))
+        assertEquals(1, api.calls)
+        repository.observe(kanto).test {
+            val detail = awaitItem() as RegionDetail
+            assertEquals("generation-i", detail.mainGeneration)
+            assertEquals(1, detail.locationCount)
+        }
     }
 
     @Test

@@ -158,8 +158,6 @@
     <string name="detail_error_title">No pudimos cargar el detalle</string>
     <string name="detail_error_no_connection">No hay conexión y este detalle todavía no está guardado en el dispositivo.</string>
     <string name="detail_error_not_found">Esta entrada no existe en la PokeAPI.</string>
-    <string name="detail_coming_soon_title">Próximamente</string>
-    <string name="detail_coming_soon_message">El detalle de esta categoría llegará en una próxima versión.</string>
     <string name="detail_height">Altura</string>
     <string name="detail_weight">Peso</string>
     <string name="detail_height_value">%1$s m</string>
@@ -172,4 +170,14 @@
     <string name="stat_special_attack">At. esp.</string>
     <string name="stat_special_defense">Def. esp.</string>
     <string name="stat_speed">Velocidad</string>
+    <string name="detail_pocket_description">Bolsillo: %1$s</string>
+    <string name="detail_items_title">Items (%1$d)</string>
+    <string name="detail_main_generation">Generación principal</string>
+    <string name="detail_locations">Locaciones</string>
+    <string name="detail_pokedexes">Pokédexes</string>
+    <string name="detail_version_groups">Grupos de versiones</string>
+    <string name="detail_main_region">Región principal</string>
+    <string name="detail_new_species">Especies nuevas</string>
+    <string name="detail_species_sample">Primeras especies</string>
+    <string name="detail_no_value" translatable="false">—</string>
 </resources>

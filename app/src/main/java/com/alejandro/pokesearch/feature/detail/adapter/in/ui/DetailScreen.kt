@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +19,6 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Construction
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,7 +42,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.alejandro.pokesearch.R
-import com.alejandro.pokesearch.core.designsystem.component.EmptyState
 import com.alejandro.pokesearch.core.designsystem.component.ErrorState
 import com.alejandro.pokesearch.core.designsystem.component.FavoriteButton
 import com.alejandro.pokesearch.core.designsystem.component.LoadingState
@@ -61,10 +60,14 @@ import com.alejandro.pokesearch.core.domain.EntryKey
 import com.alejandro.pokesearch.core.domain.PokeCategory
 import com.alejandro.pokesearch.core.domain.getOrNull
 import com.alejandro.pokesearch.feature.detail.domain.BaseStat
+import com.alejandro.pokesearch.feature.detail.domain.GenerationDetail
+import com.alejandro.pokesearch.feature.detail.domain.ItemCategoryDetail
 import com.alejandro.pokesearch.feature.detail.domain.PokemonDetail
+import com.alejandro.pokesearch.feature.detail.domain.RegionDetail
 import java.util.Locale
 
 private const val FALLBACK_TYPE = "normal"
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,6 +78,7 @@ fun DetailScreen(
     onRetry: () -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
+    onOpenEntry: (EntryKey) -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -113,23 +117,29 @@ fun DetailScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = padding,
             )
-            DetailUiState.ComingSoon -> EmptyState(
-                icon = Icons.Rounded.Construction,
-                title = stringResource(R.string.detail_coming_soon_title),
-                message = stringResource(R.string.detail_coming_soon_message),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = padding,
-            )
             is DetailUiState.Content -> when (val detail = state.detail) {
                 is PokemonDetail -> PokemonDetailContent(detail = detail, contentPadding = padding)
+                is ItemCategoryDetail -> ItemCategoryDetailContent(detail = detail, contentPadding = padding)
+                is RegionDetail -> RegionDetailContent(detail = detail, contentPadding = padding)
+                is GenerationDetail -> GenerationDetailContent(
+                    detail = detail,
+                    onSpeciesClick = onOpenEntry,
+                    contentPadding = padding,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun PokemonDetailContent(detail: PokemonDetail, contentPadding: PaddingValues) {
-    val name = displayNameOf(PokeCategory.POKEMON, detail.name)
+internal fun DetailLayout(
+    name: String,
+    number: String,
+    headerColor: Color,
+    contentPadding: PaddingValues,
+    header: @Composable () -> Unit,
+    body: @Composable ColumnScope.() -> Unit,
+) {
     val sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize)
     Column(
         Modifier
@@ -141,10 +151,10 @@ private fun PokemonDetailContent(detail: PokemonDetail, contentPadding: PaddingV
             contentAlignment = Alignment.BottomCenter,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(PokeTheme.typeColors.detailTint(detail.types.firstOrNull() ?: FALLBACK_TYPE))
+                .background(headerColor)
                 .padding(top = contentPadding.calculateTopPadding() + Spacing.xl, bottom = 44.dp),
         ) {
-            AsyncImage(model = detail.artworkUrl, contentDescription = name, modifier = Modifier.size(200.dp))
+            header()
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(Spacing.lg),
@@ -161,52 +171,56 @@ private fun PokemonDetailContent(detail: PokemonDetail, contentPadding: PaddingV
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f, fill = false).semantics { heading() },
                 )
-                Text(
-                    text = formatEntryNumber(detail.key.id),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Text(text = number, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                detail.types.forEach { TypeChip(typeName = it) }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                MeasureCard(
-                    label = stringResource(R.string.detail_height),
-                    value = stringResource(R.string.detail_height_value, formatMeasure(detail.heightMeters)),
-                    modifier = Modifier.weight(1f),
-                )
-                MeasureCard(
-                    label = stringResource(R.string.detail_weight),
-                    value = stringResource(R.string.detail_weight_value, formatMeasure(detail.weightKg)),
-                    modifier = Modifier.weight(1f),
-                )
-            }
-            DetailSection(title = stringResource(R.string.detail_abilities)) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-                    verticalArrangement = Arrangement.spacedBy(Spacing.xs),
-                ) {
-                    detail.abilities.forEach { AbilityChip(displayNameOf(PokeCategory.POKEMON, it)) }
-                }
-            }
-            DetailSection(title = stringResource(R.string.detail_base_stats)) {
-                Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                    detail.stats.forEachIndexed { index, stat ->
-                        StatBar(
-                            label = statLabel(stat.name),
-                            value = stat.value,
-                            animationDelayMillis = index * STAT_BAR_STAGGER_MILLIS,
-                        )
-                    }
-                }
-            }
+            body()
         }
     }
 }
 
 @Composable
-private fun MeasureCard(label: String, value: String, modifier: Modifier = Modifier) {
+private fun PokemonDetailContent(detail: PokemonDetail, contentPadding: PaddingValues) {
+    val name = displayNameOf(PokeCategory.POKEMON, detail.name)
+    DetailLayout(
+        name = name,
+        number = formatEntryNumber(detail.key.id),
+        headerColor = PokeTheme.typeColors.detailTint(detail.types.firstOrNull() ?: FALLBACK_TYPE),
+        contentPadding = contentPadding,
+        header = { AsyncImage(model = detail.artworkUrl, contentDescription = name, modifier = Modifier.size(200.dp)) },
+    ) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            detail.types.forEach { TypeChip(typeName = it) }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            InfoCard(
+                label = stringResource(R.string.detail_height),
+                value = stringResource(R.string.detail_height_value, formatMeasure(detail.heightMeters)),
+                modifier = Modifier.weight(1f),
+            )
+            InfoCard(
+                label = stringResource(R.string.detail_weight),
+                value = stringResource(R.string.detail_weight_value, formatMeasure(detail.weightKg)),
+                modifier = Modifier.weight(1f),
+            )
+        }
+        DetailSection(title = stringResource(R.string.detail_abilities)) {
+            InfoChipRow(names = detail.abilities.map { displayNameOf(PokeCategory.POKEMON, it) })
+        }
+        DetailSection(title = stringResource(R.string.detail_base_stats)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                detail.stats.forEachIndexed { index, stat ->
+                    StatBar(
+                        label = statLabel(stat.name),
+                        value = stat.value,
+                        animationDelayMillis = index * STAT_BAR_STAGGER_MILLIS,
+                    )
+                }
+            }
+        }
+    }
+}
+@Composable
+internal fun InfoCard(label: String, value: String, modifier: Modifier = Modifier) {
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -220,7 +234,7 @@ private fun MeasureCard(label: String, value: String, modifier: Modifier = Modif
 }
 
 @Composable
-private fun DetailSection(title: String, content: @Composable () -> Unit) {
+internal fun DetailSection(title: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
         Text(
             text = title,
@@ -233,7 +247,17 @@ private fun DetailSection(title: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun AbilityChip(name: String) {
+internal fun InfoChipRow(names: List<String>) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        names.forEach { InfoChip(it) }
+    }
+}
+
+@Composable
+private fun InfoChip(name: String) {
     Surface(
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.secondaryContainer,
@@ -313,7 +337,3 @@ private fun DetailLoadingPreview() = DetailPreview(DetailUiState.Loading)
 @PreviewLightDark
 @Composable
 private fun DetailErrorPreview() = DetailPreview(DetailUiState.Error(DomainError.NoConnection))
-
-@PreviewLightDark
-@Composable
-private fun DetailComingSoonPreview() = DetailPreview(DetailUiState.ComingSoon)

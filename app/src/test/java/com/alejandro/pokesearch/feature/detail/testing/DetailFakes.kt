@@ -3,7 +3,10 @@ package com.alejandro.pokesearch.feature.detail.testing
 import com.alejandro.pokesearch.core.domain.EntryKey
 import com.alejandro.pokesearch.core.domain.PokeCategory
 import com.alejandro.pokesearch.feature.detail.adapter.out.remote.DetailApi
+import com.alejandro.pokesearch.feature.detail.adapter.out.remote.GenerationDto
+import com.alejandro.pokesearch.feature.detail.adapter.out.remote.ItemCategoryDto
 import com.alejandro.pokesearch.feature.detail.adapter.out.remote.PokemonDto
+import com.alejandro.pokesearch.feature.detail.adapter.out.remote.RegionDto
 import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheDao
 import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheEntity
 import com.alejandro.pokesearch.feature.detail.domain.BaseStat
@@ -28,14 +31,25 @@ fun pokemonDetail(key: EntryKey, name: String) = PokemonDetail(
 
 class FakeDetailApi : DetailApi {
     var response: PokemonDto? = null
+    var regionResponse: RegionDto? = null
+    var itemCategoryResponse: ItemCategoryDto? = null
+    var generationResponse: GenerationDto? = null
     var failure: Exception? = null
     var calls = 0
         private set
 
-    override suspend fun pokemon(id: Int): PokemonDto {
+    override suspend fun pokemon(id: Int): PokemonDto = respond(response)
+
+    override suspend fun itemCategory(id: Int): ItemCategoryDto = respond(itemCategoryResponse)
+
+    override suspend fun region(id: Int): RegionDto = respond(regionResponse)
+
+    override suspend fun generation(id: Int): GenerationDto = respond(generationResponse)
+
+    private fun <T : Any> respond(configured: T?): T {
         calls++
         failure?.let { throw it }
-        return requireNotNull(response) { "No response configured" }
+        return requireNotNull(configured) { "No response configured" }
     }
 }
 

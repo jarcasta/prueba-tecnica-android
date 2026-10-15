@@ -9,7 +9,10 @@ import com.alejandro.pokesearch.core.domain.PokeCategory
 import com.alejandro.pokesearch.core.domain.getOrNull
 import com.alejandro.pokesearch.core.network.toDomainError
 import com.alejandro.pokesearch.feature.detail.adapter.out.remote.DetailApi
+import com.alejandro.pokesearch.feature.detail.adapter.out.remote.GenerationDto
+import com.alejandro.pokesearch.feature.detail.adapter.out.remote.ItemCategoryDto
 import com.alejandro.pokesearch.feature.detail.adapter.out.remote.PokemonDto
+import com.alejandro.pokesearch.feature.detail.adapter.out.remote.RegionDto
 import com.alejandro.pokesearch.feature.detail.adapter.out.remote.toDomain
 import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheDao
 import com.alejandro.pokesearch.feature.detail.adapter.out.room.DetailCacheEntity
@@ -39,7 +42,7 @@ class OfflineFirstDetailRepository @Inject constructor(
         val cached = dao.find(key.category, key.id.value)
         if (cached != null && cached.isFresh() && cached.decode() != null) return Outcome.Success(Unit)
         return try {
-            val payload = fetchJson(key) ?: return Outcome.Failure(DomainError.NotFound)
+            val payload = fetchJson(key)
             dao.upsert(DetailCacheEntity(key.category, key.id.value, payload, clock.now().toEpochMilli()))
             Outcome.Success(Unit)
         } catch (cancellation: CancellationException) {
@@ -49,9 +52,14 @@ class OfflineFirstDetailRepository @Inject constructor(
         }
     }
 
-    private suspend fun fetchJson(key: EntryKey): String? = when (key.category) {
-        PokeCategory.POKEMON -> jsonCodec.encodeToString(PokemonDto.serializer(), api.pokemon(key.id.value))
-        PokeCategory.ITEM_CATEGORY, PokeCategory.REGION, PokeCategory.GENERATION -> null
+    private suspend fun fetchJson(key: EntryKey): String {
+        val id = key.id.value
+        return when (key.category) {
+            PokeCategory.POKEMON -> jsonCodec.encodeToString(PokemonDto.serializer(), api.pokemon(id))
+            PokeCategory.ITEM_CATEGORY -> jsonCodec.encodeToString(ItemCategoryDto.serializer(), api.itemCategory(id))
+            PokeCategory.REGION -> jsonCodec.encodeToString(RegionDto.serializer(), api.region(id))
+            PokeCategory.GENERATION -> jsonCodec.encodeToString(GenerationDto.serializer(), api.generation(id))
+        }
     }
 
     private fun DetailCacheEntity.isFresh(): Boolean =
@@ -62,7 +70,9 @@ class OfflineFirstDetailRepository @Inject constructor(
         return try {
             when (category) {
                 PokeCategory.POKEMON -> jsonCodec.decodeFromString(PokemonDto.serializer(), json).toDomain(key)
-                PokeCategory.ITEM_CATEGORY, PokeCategory.REGION, PokeCategory.GENERATION -> null
+                PokeCategory.ITEM_CATEGORY -> jsonCodec.decodeFromString(ItemCategoryDto.serializer(), json).toDomain(key)
+                PokeCategory.REGION -> jsonCodec.decodeFromString(RegionDto.serializer(), json).toDomain(key)
+                PokeCategory.GENERATION -> jsonCodec.decodeFromString(GenerationDto.serializer(), json).toDomain(key)
             }
         } catch (_: SerializationException) {
             null

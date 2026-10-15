@@ -75,7 +75,10 @@ fun AppNavHost(startDestination: Any, modifier: Modifier = Modifier) {
             )
         }
         composable<Detail> {
-            DetailRoute(onBack = { navController.popBackStack() })
+            DetailRoute(
+                onBack = { navController.popBackStack() },
+                onOpenEntry = { key -> navController.navigate(Detail(key.category, key.id.value)) },
+            )
         }
     }
 }

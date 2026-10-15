@@ -24,10 +24,14 @@ fun formatEntryNumber(id: EntryId): String = "#" + id.value.toString().padStart(
 
 fun entryLeadingOf(category: PokeCategory, rawName: String, imageUrl: String?): ResultLeading = when (category) {
     PokeCategory.POKEMON -> ResultLeading.Sprite(imageUrl)
-    PokeCategory.GENERATION -> ResultLeading.Monogram(
-        rawName.substringAfterLast('-').takeIf { romanNumeral.matches(it) }?.uppercase() ?: initialOf(rawName),
-    )
-    PokeCategory.ITEM_CATEGORY, PokeCategory.REGION -> ResultLeading.Monogram(initialOf(rawName))
+    PokeCategory.ITEM_CATEGORY, PokeCategory.REGION, PokeCategory.GENERATION ->
+        ResultLeading.Monogram(monogramOf(category, rawName))
 }
+
+fun monogramOf(category: PokeCategory, rawName: String): String =
+    rawName.substringAfterLast('-')
+        .takeIf { category == PokeCategory.GENERATION && romanNumeral.matches(it) }
+        ?.uppercase()
+        ?: initialOf(rawName)
 
 private fun initialOf(rawName: String): String = rawName.take(1).uppercase()

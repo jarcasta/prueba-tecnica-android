@@ -8,7 +8,6 @@ import com.alejandro.pokesearch.core.domain.DomainError
 import com.alejandro.pokesearch.core.domain.EntryId
 import com.alejandro.pokesearch.core.domain.EntryKey
 import com.alejandro.pokesearch.core.domain.Outcome
-import com.alejandro.pokesearch.core.domain.PokeCategory
 import com.alejandro.pokesearch.core.domain.getOrNull
 import com.alejandro.pokesearch.feature.detail.application.ObserveEntryDetailUseCase
 import com.alejandro.pokesearch.feature.detail.application.RefreshEntryDetailUseCase
@@ -48,14 +47,13 @@ class DetailViewModel internal constructor(
     ) : this(savedStateHandle.toRoute<Detail>(), observeEntryDetail, refreshEntryDetail, observeFavoriteKeys, toggleFavorite)
 
     private val key: EntryKey? = EntryId.of(route.id).getOrNull()?.let { EntryKey(route.category, it) }
-    private val isSupported = route.category in SUPPORTED_CATEGORIES
     private val refreshState = MutableStateFlow<RefreshState>(RefreshState.Running)
 
-    val uiState: StateFlow<DetailUiState> = when {
-        key == null -> flowOf(DetailUiState.Error(DomainError.NotFound))
-        !isSupported -> flowOf(DetailUiState.ComingSoon)
-        else -> detailState(key, observeEntryDetail(key), observeFavoriteKeys())
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), DetailUiState.Loading)
+    private val state: Flow<DetailUiState> =
+        key?.let { detailState(it, observeEntryDetail(it), observeFavoriteKeys()) }
+            ?: flowOf(DetailUiState.Error(DomainError.NotFound))
+
+    val uiState: StateFlow<DetailUiState> = state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), DetailUiState.Loading)
 
     init {
         refresh()
@@ -71,7 +69,7 @@ class DetailViewModel internal constructor(
     }
 
     private fun refresh() {
-        val key = key?.takeIf { isSupported } ?: return
+        val key = key ?: return
         refreshState.value = RefreshState.Running
         viewModelScope.launch {
             refreshState.value = when (val result = refreshEntryDetail(key)) {
@@ -106,7 +104,6 @@ class DetailViewModel internal constructor(
     }
 
     private companion object {
-        val SUPPORTED_CATEGORIES = setOf(PokeCategory.POKEMON)
         const val STOP_TIMEOUT_MILLIS = 5_000L
     }
 }
