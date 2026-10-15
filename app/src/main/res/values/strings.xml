@@ -101,4 +101,38 @@
         <item quantity="many">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
         <item quantity="other">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
     </plurals>
+
+    <!-- Explore -->
+    <plurals name="catalog_count_pokemon">
+        <item quantity="one">%d Pokémon</item>
+        <item quantity="many">%d Pokémon</item>
+        <item quantity="other">%d Pokémon</item>
+    </plurals>
+    <plurals name="catalog_count_item_category">
+        <item quantity="one">%d categoría de items</item>
+        <item quantity="many">%d categorías de items</item>
+        <item quantity="other">%d categorías de items</item>
+    </plurals>
+    <plurals name="catalog_count_region">
+        <item quantity="one">%d región</item>
+        <item quantity="many">%d regiones</item>
+        <item quantity="other">%d regiones</item>
+    </plurals>
+    <plurals name="catalog_count_generation">
+        <item quantity="one">%d generación</item>
+        <item quantity="many">%d generaciones</item>
+        <item quantity="other">%d generaciones</item>
+    </plurals>
+    <string name="explore_error_title_pokemon">No pudimos cargar los Pokémon</string>
+    <string name="explore_error_title_item_category">No pudimos cargar las categorías de items</string>
+    <string name="explore_error_title_region">No pudimos cargar las regiones</string>
+    <string name="explore_error_title_generation">No pudimos cargar las generaciones</string>
+    <string name="explore_error_no_connection">No hay conexión y todavía no hay datos guardados de esta categoría en el dispositivo.</string>
+    <string name="explore_error_not_found">La PokeAPI no encontró esta categoría.</string>
+    <string name="explore_error_server">La PokeAPI respondió con un error (%1$d). Inténtalo más tarde.</string>
+    <string name="explore_error_unexpected">Ocurrió un error inesperado. Inténtalo de nuevo.</string>
+    <string name="explore_empty_title">Sin resultados</string>
+    <string name="explore_empty_message">Esta categoría todavía no tiene entradas.</string>
+    <string name="explore_stale_data">No se pudo actualizar · mostrando datos guardados</string>
+    <string name="back_to_top">Volver arriba</string>
 </resources>
