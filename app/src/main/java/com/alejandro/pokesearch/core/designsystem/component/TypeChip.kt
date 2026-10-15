@@ -23,21 +23,6 @@ import com.alejandro.pokesearch.core.designsystem.theme.PokeTheme
 import com.alejandro.pokesearch.core.designsystem.theme.Spacing
 
 @Composable
-fun TypeTag(typeName: String, modifier: Modifier = Modifier) {
-    val colors = PokeTheme.typeColors[typeName]
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        color = colors.container,
-        contentColor = colors.onContainer,
-        modifier = modifier.height(20.dp),
-    ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = Spacing.xs)) {
-            Text(text = typeName, style = MaterialTheme.typography.labelSmall)
-        }
-    }
-}
-
-@Composable
 fun TypeChip(typeName: String, modifier: Modifier = Modifier) {
     val colors = PokeTheme.typeColors[typeName]
     Surface(
@@ -68,12 +53,12 @@ fun TypeDot(color: Color, modifier: Modifier = Modifier) {
 
 @PreviewLightDark
 @Composable
-private fun TypeTagPreview() {
+private fun TypeChipPreview() {
     PokeSearchTheme(dynamicColor = false) {
         Surface {
             Column(Modifier.padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                    listOf("fire", "water", "grass", "electric").forEach { TypeTag(it) }
+                    listOf("fire", "water", "grass", "electric").forEach { TypeChip(it) }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                     listOf("fire", "flying").forEach { TypeChip(it) }

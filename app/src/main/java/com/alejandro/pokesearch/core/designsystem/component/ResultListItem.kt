@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -32,11 +30,12 @@ import coil3.compose.AsyncImage
 import com.alejandro.pokesearch.core.designsystem.theme.PokeSearchTheme
 import com.alejandro.pokesearch.core.designsystem.theme.Spacing
 
+/** Vista para los items obtenidos de PokeAPI, muestra la imagen del
+ * pokemon si esta disponible, si no hay un sprite de pokemon o imagen
+ * a obtener se muestra data formateada. */
 @Immutable
 sealed interface ResultLeading {
     data class Sprite(val imageUrl: String?) : ResultLeading
-
-    data class PocketIcon(val pocketName: String) : ResultLeading
 
     data class Monogram(val text: String) : ResultLeading
 }
@@ -106,16 +105,6 @@ private fun ResultLeadingVisual(leading: ResultLeading) {
                 .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh),
         )
-        is ResultLeading.PocketIcon -> Surface(
-            shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.size(size),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(imageVector = PokeIcons.pocket(leading.pocketName), contentDescription = null)
-            }
-        }
         is ResultLeading.Monogram -> Monogram(text = leading.text, size = size, modifier = Modifier.clearAndSetSemantics {})
     }
 }
@@ -133,14 +122,7 @@ private fun ResultListItemPreview() {
                 onToggleFavorite = {},
                 onClick = {},
             )
-            ResultListItem(
-                name = "Healing",
-                number = "#027",
-                leading = ResultLeading.PocketIcon(pocketName = "medicine"),
-                isFavorite = false,
-                onToggleFavorite = {},
-                onClick = {},
-            )
+            ResultListItemPlaceholder()
             ResultListItem(
                 name = "Generation VIII",
                 number = "#8",
