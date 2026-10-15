@@ -10,7 +10,7 @@ interface FavoritesRepository {
 
     fun search(userId: UserId, query: String, category: PokeCategory?): Flow<List<Favorite>>
 
-    suspend fun isFavorite(userId: UserId, key: EntryKey): Boolean
+    suspend fun find(userId: UserId, key: EntryKey): Favorite?
 
     suspend fun add(favorite: Favorite)
 

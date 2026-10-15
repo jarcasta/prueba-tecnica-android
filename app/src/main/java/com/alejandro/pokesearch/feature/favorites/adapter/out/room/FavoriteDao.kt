@@ -22,8 +22,8 @@ interface FavoriteDao {
     )
     fun search(userId: Long, category: PokeCategory?, namePattern: String): Flow<List<FavoriteEntity>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE userId = :userId AND category = :category AND entryId = :entryId)")
-    suspend fun exists(userId: Long, category: PokeCategory, entryId: Int): Boolean
+    @Query("SELECT * FROM favorites WHERE userId = :userId AND category = :category AND entryId = :entryId")
+    suspend fun find(userId: Long, category: PokeCategory, entryId: Int): FavoriteEntity?
 
     @Upsert
     suspend fun upsert(favorite: FavoriteEntity)

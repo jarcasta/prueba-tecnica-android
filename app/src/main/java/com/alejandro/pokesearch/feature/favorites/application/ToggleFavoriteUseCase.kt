@@ -24,12 +24,12 @@ class ToggleFavoriteUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(key: EntryKey, snapshot: FavoriteSnapshot): ToggleFavoriteResult {
         val user = observeSession().first() ?: return ToggleFavoriteResult.NoActiveSession
-        val favorite = Favorite(userId = user.id, key = key, snapshot = snapshot, addedAt = clock.now())
-        return if (favoritesRepository.isFavorite(user.id, key)) {
+        val existing = favoritesRepository.find(user.id, key)
+        return if (existing != null) {
             favoritesRepository.remove(user.id, key)
-            ToggleFavoriteResult.Removed(favorite)
+            ToggleFavoriteResult.Removed(existing)
         } else {
-            favoritesRepository.add(favorite)
+            favoritesRepository.add(Favorite(userId = user.id, key = key, snapshot = snapshot, addedAt = clock.now()))
             ToggleFavoriteResult.Added
         }
     }

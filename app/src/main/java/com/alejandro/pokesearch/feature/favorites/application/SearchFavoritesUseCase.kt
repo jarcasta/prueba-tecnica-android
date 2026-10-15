@@ -15,8 +15,16 @@ class SearchFavoritesUseCase @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke(query: String, category: PokeCategory?): Flow<List<Favorite>> =
-        observeSession().flatMapLatest { user ->
-            if (user == null) flowOf(emptyList()) else favoritesRepository.search(user.id, query.trim(), category)
+    operator fun invoke(query: String, category: PokeCategory?): Flow<List<Favorite>> {
+        val normalizedQuery = normalize(query)
+        return observeSession().flatMapLatest { user ->
+            if (user == null) flowOf(emptyList()) else favoritesRepository.search(user.id, normalizedQuery, category)
         }
+    }
+
+    private fun normalize(query: String): String = query.trim().lowercase().replace(whitespace, "-")
+
+    private companion object {
+        val whitespace = Regex("\\s+")
+    }
 }

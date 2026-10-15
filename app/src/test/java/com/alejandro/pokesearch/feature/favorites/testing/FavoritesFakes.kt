@@ -10,6 +10,7 @@ import com.alejandro.pokesearch.feature.favorites.domain.FavoritesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 
 fun entryKey(category: PokeCategory, id: Int): EntryKey =
@@ -25,8 +26,11 @@ class FakeFavoritesRepository : FavoritesRepository {
     override fun observeKeys(userId: UserId): Flow<Set<EntryKey>> =
         favorites.map { list -> list.filter { it.userId == userId }.mapTo(mutableSetOf()) { it.key } }
 
+    /** Queries received by [search], to check normalization and debounce. */
+    val searchQueries = mutableListOf<String>()
+
     override fun search(userId: UserId, query: String, category: PokeCategory?): Flow<List<Favorite>> =
-        favorites.map { list ->
+        favorites.onStart { searchQueries += query }.map { list ->
             list.filter {
                 it.userId == userId &&
                     (category == null || it.key.category == category) &&
@@ -34,8 +38,8 @@ class FakeFavoritesRepository : FavoritesRepository {
             }.sortedByDescending { it.addedAt }
         }
 
-    override suspend fun isFavorite(userId: UserId, key: EntryKey): Boolean =
-        favorites.value.any { it.userId == userId && it.key == key }
+    override suspend fun find(userId: UserId, key: EntryKey): Favorite? =
+        favorites.value.firstOrNull { it.userId == userId && it.key == key }
 
     override suspend fun add(favorite: Favorite) {
         favorites.update { list -> list.filterNot { it.userId == favorite.userId && it.key == favorite.key } + favorite }

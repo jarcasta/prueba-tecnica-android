@@ -24,8 +24,8 @@ class RoomFavoritesRepository @Inject constructor(
     override fun search(userId: UserId, query: String, category: PokeCategory?): Flow<List<Favorite>> =
         dao.search(userId.value, category, containsPattern(query)).map { rows -> rows.mapNotNull { it.toDomain() } }
 
-    override suspend fun isFavorite(userId: UserId, key: EntryKey): Boolean =
-        dao.exists(userId.value, key.category, key.id.value)
+    override suspend fun find(userId: UserId, key: EntryKey): Favorite? =
+        dao.find(userId.value, key.category, key.id.value)?.toDomain()
 
     override suspend fun add(favorite: Favorite) = dao.upsert(favorite.toEntity())
 
