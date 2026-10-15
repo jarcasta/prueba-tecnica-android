@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import com.alejandro.pokesearch.R
 import com.alejandro.pokesearch.core.designsystem.component.KnownUserItem
 import com.alejandro.pokesearch.core.designsystem.component.Wordmark
+import com.alejandro.pokesearch.core.designsystem.component.initialsOf
 import com.alejandro.pokesearch.core.designsystem.theme.PokeSearchTheme
 import com.alejandro.pokesearch.core.designsystem.theme.PokeTheme
 import com.alejandro.pokesearch.core.designsystem.theme.Spacing

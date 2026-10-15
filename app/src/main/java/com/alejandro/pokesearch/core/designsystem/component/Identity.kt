@@ -45,6 +45,10 @@ fun Wordmark(
     )
 }
 
+private const val INITIALS_LENGTH = 2
+
+fun initialsOf(username: String): String = username.take(INITIALS_LENGTH).uppercase()
+
 @Composable
 fun UserAvatar(
     initials: String,

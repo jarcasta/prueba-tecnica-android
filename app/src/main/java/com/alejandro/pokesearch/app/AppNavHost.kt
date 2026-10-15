@@ -2,6 +2,7 @@ package com.alejandro.pokesearch.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Construction
@@ -19,6 +20,8 @@ import androidx.navigation.compose.rememberNavController
 import com.alejandro.pokesearch.R
 import com.alejandro.pokesearch.core.designsystem.component.EmptyState
 import com.alejandro.pokesearch.feature.auth.adapter.`in`.ui.LoginRoute
+import com.alejandro.pokesearch.feature.catalog.adapter.`in`.ui.ExploreRoute
+import com.alejandro.pokesearch.feature.dashboard.adapter.`in`.ui.DashboardRoute
 
 /**
  * App root. Se debe determinar el estado de la pantalla antes de poder
@@ -52,20 +55,36 @@ fun AppNavHost(startDestination: Any, modifier: Modifier = Modifier) {
                 },
             )
         }
-        composable<Dashboard> { UnderConstruction() }
-        composable<Detail> { UnderConstruction() }
+        composable<Dashboard> {
+            DashboardRoute(
+                onLoggedOut = {
+                    navController.navigate(Login) {
+                        // Clears the whole back stack: back from Login leaves the app.
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                },
+                exploreTab = { contentPadding ->
+                    ExploreRoute(
+                        onOpenDetail = { key -> navController.navigate(Detail(key.category, key.id.value)) },
+                        contentPadding = contentPadding,
+                    )
+                },
+                favoritesTab = { contentPadding -> UnderConstruction(contentPadding) },
+            )
+        }
+        composable<Detail> {
+            Scaffold { padding -> UnderConstruction(padding) }
+        }
     }
 }
 
 @Composable
-private fun UnderConstruction() {
-    Scaffold { padding ->
-        EmptyState(
-            icon = Icons.Rounded.Construction,
-            title = stringResource(R.string.placeholder_title),
-            message = stringResource(R.string.placeholder_message),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = padding,
-        )
-    }
+private fun UnderConstruction(contentPadding: PaddingValues) {
+    EmptyState(
+        icon = Icons.Rounded.Construction,
+        title = stringResource(R.string.placeholder_title),
+        message = stringResource(R.string.placeholder_message),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = contentPadding,
+    )
 }

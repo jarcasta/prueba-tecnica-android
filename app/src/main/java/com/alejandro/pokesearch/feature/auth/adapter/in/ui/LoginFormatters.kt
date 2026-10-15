@@ -11,11 +11,6 @@ import com.alejandro.pokesearch.feature.auth.domain.UsernameError
 import java.time.Duration
 import java.time.Instant
 
-
-private const val INITIALS_LENGTH = 2
-
-fun initialsOf(username: String): String = username.take(INITIALS_LENGTH).uppercase()
-
 @Composable
 fun knownUserSupportingText(user: KnownUserUi, now: Instant): String =
     stringResource(

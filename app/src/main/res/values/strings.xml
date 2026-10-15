@@ -101,6 +101,16 @@
         <item quantity="many">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
         <item quantity="other">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
     </plurals>
+    <plurals name="reset_done">
+        <item quantity="one">Se eliminó %d favorito</item>
+        <item quantity="many">Se eliminaron %d favoritos</item>
+        <item quantity="other">Se eliminaron %d favoritos</item>
+    </plurals>
+    <string name="reset_done_none">No tenías favoritos que eliminar</string>
+
+    <!-- Dashboard -->
+    <string name="nav_explore">Explorar</string>
+    <string name="nav_favorites">Favoritos</string>
 
     <!-- Explore -->
     <plurals name="catalog_count_pokemon">
