@@ -29,7 +29,7 @@ import com.alejandro.pokesearch.R
 fun DashboardRoute(
     onLoggedOut: () -> Unit,
     exploreTab: @Composable (contentPadding: PaddingValues) -> Unit,
-    favoritesTab: @Composable (contentPadding: PaddingValues) -> Unit,
+    favoritesTab: @Composable (contentPadding: PaddingValues, onExploreClick: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
@@ -90,7 +90,9 @@ fun DashboardRoute(
     ) { contentPadding ->
         NavHost(navController = tabsNavController, startDestination = ExploreTab) {
             composable<ExploreTab> { exploreTab(contentPadding) }
-            composable<FavoritesTab> { favoritesTab(contentPadding) }
+            composable<FavoritesTab> {
+                favoritesTab(contentPadding) { tabsNavController.navigateToTab(DashboardTab.Explore) }
+            }
         }
     }
 }

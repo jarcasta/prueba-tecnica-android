@@ -22,6 +22,7 @@ import com.alejandro.pokesearch.core.designsystem.component.EmptyState
 import com.alejandro.pokesearch.feature.auth.adapter.`in`.ui.LoginRoute
 import com.alejandro.pokesearch.feature.catalog.adapter.`in`.ui.ExploreRoute
 import com.alejandro.pokesearch.feature.dashboard.adapter.`in`.ui.DashboardRoute
+import com.alejandro.pokesearch.feature.favorites.adapter.`in`.ui.FavoritesRoute
 
 /**
  * App root. Se debe determinar el estado de la pantalla antes de poder
@@ -69,7 +70,13 @@ fun AppNavHost(startDestination: Any, modifier: Modifier = Modifier) {
                         contentPadding = contentPadding,
                     )
                 },
-                favoritesTab = { contentPadding -> UnderConstruction(contentPadding) },
+                favoritesTab = { contentPadding, onExploreClick ->
+                    FavoritesRoute(
+                        onOpenDetail = { key -> navController.navigate(Detail(key.category, key.id.value)) },
+                        onExploreClick = onExploreClick,
+                        contentPadding = contentPadding,
+                    )
+                },
             )
         }
         composable<Detail> {

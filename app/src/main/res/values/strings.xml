@@ -145,4 +145,15 @@
     <string name="explore_empty_message">Esta categoría todavía no tiene entradas.</string>
     <string name="explore_stale_data">No se pudo actualizar · mostrando datos guardados</string>
     <string name="back_to_top">Volver arriba</string>
+
+    <!-- Favorites -->
+    <string name="favorites_empty_title">Aún no tienes favoritos</string>
+    <string name="favorites_empty_message">Toca el corazón en cualquier entrada de Explorar para guardarla aquí.</string>
+    <string name="favorites_no_matches_title">Sin coincidencias</string>
+    <string name="favorites_no_matches_query">Ningún favorito coincide con “%1$s”.</string>
+    <string name="favorites_no_matches_category">No tienes favoritos en %1$s.</string>
+    <string name="favorites_no_matches_generic">Ningún favorito coincide con los filtros.</string>
+    <string name="favorites_clear_filters">Limpiar filtros</string>
+    <string name="favorite_removed">Se quitó %1$s de favoritos</string>
+    <string name="action_undo">Deshacer</string>
 </resources>
