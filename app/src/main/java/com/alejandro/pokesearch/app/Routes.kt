@@ -4,10 +4,10 @@ import com.alejandro.pokesearch.core.domain.PokeCategory
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object LoginRoute
+data object Login
 
 @Serializable
-data object DashboardRoute
+data object Dashboard
 
 @Serializable
-data class DetailRoute(val category: PokeCategory, val id: Int)
+data class Detail(val category: PokeCategory, val id: Int)
