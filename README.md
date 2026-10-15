@@ -33,6 +33,17 @@ App Android nativa en Kotlin y Jetpack Compose (Material 3) para explorar Pokém
   - Al volver la red (después de 2 s estable), se reintenta automáticamente lo que había fallado.
 - **Tema** claro y oscuro según el sistema, con dynamic color en Android 12 o superior.
 
+## Búsqueda
+
+La PokeAPI no tiene búsqueda por texto en sus listados: solo pagina con `offset` y `limit`. Por eso el requisito de búsqueda (local o remota) se cubre así:
+
+| Pantalla  | Cómo se busca                                              |
+|-----------|------------------------------------------------------------|
+| Explorar  | Navegación por categoría con scroll infinito               |
+| Favoritos | Búsqueda local por nombre, con debounce de 200 ms, sin red |
+| Favoritos | Filtro por categoría, con la opción "Todas"                |
+
+
 ## Arquitectura
 
 Arquitectura hexagonal con vertical slicing, en un único módulo Gradle. 
@@ -85,6 +96,55 @@ Room es la única fuente de verdad: la UI siempre lee de la base local y la red 
 
 Las migraciones son automáticas y el esquema se exporta en `app/schemas/`.
 
+## Decisiones técnicas
+
+| Decisión | Resumen |
+|---|---|
+| Hexagonal + vertical slices en un módulo | Un solo `:app` organizado por feature (`domain`, `application`, `adapter`, `di`). |
+| Room como fuente de verdad | Toda la UI lee de Room; Explorar usa `RemoteMediator`, que escribe las páginas de la red en Room y pagina desde su `PagingSource`. El offset sale de `sync_state`, no del conteo de filas. |
+| `cachedIn` antes del `combine` | `flatMapLatest → cachedIn → combine(favoritos)`: marcar un favorito vuelve a mapear las páginas en caché sin reiniciar la paginación. Un test falla si se invierte el orden. |
+| Placeholders en el catálogo | `enablePlaceholders = true` mantiene estables los índices cuando Room invalida el `PagingSource`, y el scroll ya no salta hacia atrás. |
+| Caché del detalle como JSON | `detail_cache` guarda el JSON del DTO recortado y lo mapea con el mismo mapper que la red: una tabla para cuatro formas de detalle. |
+| `PagingData` en el puerto | `CatalogRepository` expone `Flow<PagingData>` como única excepción de framework en el dominio (`paging-common` no depende de Android), limitada a `CatalogRepository` y `ObserveCatalogUseCase`. |
+| Lenguaje publicado entre slices | Un slice usa la `application` de otro y solo los tipos de dominio publicados (`UserId`, `FavoriteCountReader`, `FavoriteSnapshot`). |
+| `NetworkMonitor` con reintento | Puerto en `core/domain` con un único callback compartido (`shareIn`); al volver la red y mantenerse 2 s, se reintenta lo que falló (el DNS puede fallar justo tras la validación). |
+| Tabs como slots | `DashboardRoute` recibe Explorar y Favoritos como `@Composable` desde `AppNavHost`, así el dashboard no importa la UI de otros slices y cada tab conserva su estado. |
+
+## Trade-offs
+
+| Decisión | Lo que se gana | Lo que se cede |
+|---|---|---|
+| Un solo módulo Gradle | Sin build logic multi-módulo; refactors y navegación entre slices simples | El aislamiento entre slices es por convención, no lo garantiza el compilador; sin builds incrementales por módulo |
+| `PagingData` (androidx) en el puerto del dominio | Se reutilizan `cachedIn`, `map` y `collectAsLazyPagingItems` sin envolver ni desenvolver | El dominio de catalog queda acoplado a `paging-common` |
+| Caché del detalle como JSON | Una sola tabla y sin migraciones para cuatro formas de datos de solo lectura | No se puede consultar por campos con SQL; si el DTO cambia, la caché vieja se descarta y se vuelve a pedir |
+| Login sin contraseña | Cambio de usuario inmediato, sin backend ni gestión de credenciales | Cualquiera con acceso al dispositivo puede entrar como otro usuario; los perfiles no son privados |
+| Sin filtros por atributo | Esquema, sincronización y estados offline más simples | No se puede filtrar Explorar por tipo ni por pocket |
+| Snapshot en el favorito | Favoritos funcionan sin red y sin depender de catalog o detail | Si la API cambiara un nombre o una imagen, el favorito conservaría el valor guardado |
+| ViewModels que observan la red con `Eagerly` | El reintento ve la reconexión aunque la app esté en segundo plano | El callback de red sigue registrado mientras viven los ViewModels |
+| Vigencia de 24 h (catálogo y detalle) | Menos peticiones y el scroll restaurado no se rompe al reabrir | Un cambio en la API puede tardar hasta 24 h en verse |
+
+## Qué no se hizo y por qué
+
+| Pendiente | Motivo                                                                                                                                                                                                              |
+|---|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Filtros por tipo y pocket | La API no da conteos de miembros y sincronizar las opciones y membresías costaba ~20 llamadas iniciales, más tablas y casos offline. La arquitectura permite agregarlos como otro puerto y tablas en el slice catalog. |
+| Búsqueda remota | La PokeAPI no ofrece búsqueda por texto en los listados.                                                                                                                                  |
+| Compose Multiplatform | Room, Hilt y Paging se usan en sus variantes Android.                                                                                                                   |
+| SplashScreen API | Habría sumado `core-splashscreen`; el parpadeo del arranque se evita sin montar el NavHost hasta conocer la sesión (`MainViewModel`).                                                                               |
+| Contador de resultados durante la carga | El `count` de la API no se guarda, así que el contador aparece solo cuando la categoría terminó de cargar.                                                                                                          |
+| Imágenes de categorías de items, regiones y generaciones | La API no tiene imagen para ellas en el listado; se muestran con un monograma.                                                                                                                                      |
+
+## Bonus implementados
+
+| Bonus | Dónde se ve |
+|---|---|
+| Paging 3 con Compose  | `CatalogRemoteMediator`, `OfflineFirstCatalogRepository`, `collectAsLazyPagingItems()` en `ExploreRoute` |
+| Tests instrumentados con Compose Testing | `LoginScreenTest`, `ExploreScreenTest`, `FavoritesScreenTest`, `DetailScreenTest` (`app/src/androidTest`) |
+| Animaciones nativas de Compose | Pop y `Crossfade` en `FavoriteButton`; barras animadas en `StatBar`; skeleton con `rememberInfiniteTransition`, `OfflineBanner` con `AnimatedVisibility` y `PagingFooter` con `Crossfade` (`StatusStates.kt`); `animateItem()` en `FavoritesScreen`; botón "volver arriba" en `ExploreScreen`; `AnimatedContent` en el botón de `LoginScreen` |
+| Modo oscuro + dynamic color | `PokeSearchTheme` (`core/designsystem/theme/Theme.kt`), con colores de tipo en `TypeColors.kt` |
+| Coil | `AsyncImage` en `ResultListItem`, `DetailScreen` y `CategoryDetailContents`, con `coil-network-okhttp` |
+| CI con GitHub Actions | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+
 ## Cómo ejecutarlo
 
 **Requisitos**: Android SDK con la plataforma 37. El daemon de Gradle usa JDK 25 (`gradle/gradle-daemon-jvm.properties`) y Gradle lo descarga automáticamente si no está instalado. No hace falta configurar una API key: la PokeAPI es pública.
@@ -108,8 +168,3 @@ El workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) se ejecuta en
 - Sube los reportes de tests y de lint como artefacto (`reports`), también cuando el build falla.
 
 Los tests instrumentados no corren en CI porque necesitan un emulador; se ejecutan en local con `connectedDebugAndroidTest`.
-
-## Limitaciones conocidas
-
-- El contador de resultados de Explorar aparece solo cuando la categoría terminó de cargar, porque el total que informa la API no se guarda.
-- En las listas, las categorías de items, las regiones y las generaciones se muestran con un monograma: la API no tiene imagen para ellas en el listado.
