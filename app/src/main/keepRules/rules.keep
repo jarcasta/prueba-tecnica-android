@@ -10,3 +10,6 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+# Enums used as type-safe navigation arguments (see app/Routes.kt). The domain layer cannot
+# depend on androidx.annotation.Keep, so they are kept here instead.
+-keep enum com.alejandro.pokesearch.core.domain.PokeCategory { *; }

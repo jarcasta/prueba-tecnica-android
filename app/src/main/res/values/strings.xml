@@ -1,3 +1,105 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <string name="app_name">PokeSearch</string>
+
+    <!-- Wordmark -->
+    <string name="wordmark_prefix" translatable="false">Poke</string>
+    <string name="wordmark_suffix" translatable="false">Search</string>
+
+    <!-- Placeholder destinations (removed as each feature lands) -->
+    <string name="placeholder_title">En construcción</string>
+    <string name="placeholder_message">Esta pantalla llegará en un próximo incremento.</string>
+
+    <!-- Login -->
+    <string name="login_subtitle_first_use">Explora Pokémon, items, regiones y generaciones. Funciona también sin conexión.</string>
+    <string name="login_subtitle_returning">Hola de nuevo. ¿Quién explora hoy?</string>
+    <string name="login_continue_as">Continuar como</string>
+    <string name="login_see_all">Ver todos</string>
+    <string name="login_see_less">Ver menos</string>
+    <string name="login_divider">o entra con otro usuario</string>
+    <string name="login_username_label">Nombre de usuario</string>
+    <plurals name="login_username_hint">
+        <item quantity="one">De %1$d a %2$d letra o número</item>
+        <item quantity="many">De %1$d a %2$d letras o números</item>
+        <item quantity="other">De %1$d a %2$d letras o números</item>
+    </plurals>
+    <string name="login_username_new">Usuario nuevo</string>
+    <string name="login_username_existing">Ya existe · se restaurarán tus favoritos</string>
+    <plurals name="login_username_existing_count">
+        <item quantity="one">Ya existe · se restaurará tu %d favorito</item>
+        <item quantity="many">Ya existe · se restaurarán tus %d favoritos</item>
+        <item quantity="other">Ya existe · se restaurarán tus %d favoritos</item>
+    </plurals>
+    <string name="login_username_counter">%1$d/%2$d</string>
+    <plurals name="login_error_too_short">
+        <item quantity="one">Mínimo %1$d carácter</item>
+        <item quantity="many">Mínimo %1$d caracteres</item>
+        <item quantity="other">Mínimo %1$d caracteres</item>
+    </plurals>
+    <plurals name="login_error_too_long">
+        <item quantity="one">Máximo %1$d carácter</item>
+        <item quantity="many">Máximo %1$d caracteres</item>
+        <item quantity="other">Máximo %1$d caracteres</item>
+    </plurals>
+    <string name="login_error_invalid_character">Solo letras y números, sin \"%1$s\"</string>
+    <string name="login_submit">Entrar</string>
+    <string name="login_submitting">Entrando…</string>
+    <string name="login_footer">Sin contraseña. Tus datos se guardan solo en este dispositivo</string>
+    <string name="login_known_user_supporting">%1$s · último acceso %2$s</string>
+    <string name="login_last_access_just_now">hace un momento</string>
+    <string name="login_error_generic">No se pudo iniciar sesión. Inténtalo de nuevo.</string>
+
+    <!-- Categories -->
+    <string name="category_all">Todas</string>
+    <string name="category_pokemon">Pokémon</string>
+    <string name="category_item_category">Categorías de items</string>
+    <string name="category_region">Regiones</string>
+    <string name="category_generation">Generaciones</string>
+    <string name="filter_all">Todos</string>
+
+    <!-- FavoriteButton -->
+    <string name="favorite_add">Añadir a favoritos</string>
+    <string name="favorite_remove">Quitar de favoritos</string>
+    <string name="favorite_state_on">En favoritos</string>
+    <string name="favorite_state_off">No está en favoritos</string>
+
+    <!-- Favorites count -->
+    <string name="favorites_none">Sin favoritos</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d favorito</item>
+        <item quantity="many">%d favoritos</item>
+        <item quantity="other">%d favoritos</item>
+    </plurals>
+
+    <!-- Shared states -->
+    <string name="offline_banner">Sin conexión · mostrando datos guardados</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="paging_error">No se pudieron cargar más resultados</string>
+    <string name="loading">Cargando</string>
+
+    <!-- LocalSearchField -->
+    <string name="search_favorites_hint">Buscar en favoritos</string>
+    <string name="search_clear">Borrar búsqueda</string>
+
+    <!-- UserMenu -->
+    <string name="user_menu_open">Abrir menú de usuario</string>
+    <string name="user_menu_reset">Restablecer mis datos</string>
+    <string name="user_menu_logout">Cerrar sesión</string>
+
+    <!-- Dialogs -->
+    <string name="action_cancel">Cancelar</string>
+    <string name="logout_title">¿Cerrar sesión?</string>
+    <string name="logout_confirm">Cerrar sesión</string>
+    <plurals name="logout_message">
+        <item quantity="one">Tu %1$d favorito seguirá guardado en este dispositivo. La próxima vez, elige %2$s en “Continuar como”.</item>
+        <item quantity="many">Tus %1$d favoritos seguirán guardados en este dispositivo. La próxima vez, elige %2$s en “Continuar como”.</item>
+        <item quantity="other">Tus %1$d favoritos seguirán guardados en este dispositivo. La próxima vez, elige %2$s en “Continuar como”.</item>
+    </plurals>
+    <string name="logout_message_no_favorites">La próxima vez, elige %1$s en “Continuar como”.</string>
+    <string name="reset_title">¿Restablecer tus datos?</string>
+    <string name="reset_confirm">Restablecer</string>
+    <plurals name="reset_message">
+        <item quantity="one">Se eliminará tu %1$d favorito de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
+        <item quantity="many">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
+        <item quantity="other">Se eliminarán tus %1$d favoritos de este dispositivo. Tu usuario %2$s se conserva. Esta acción no se puede deshacer.</item>
+    </plurals>
 </resources>
