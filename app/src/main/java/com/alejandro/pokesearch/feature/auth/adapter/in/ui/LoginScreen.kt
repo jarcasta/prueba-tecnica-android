@@ -45,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -181,13 +182,15 @@ private fun ReturningContent(
             Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
                 Column {
                     visibleUsers.forEach { user ->
-                        KnownUserItem(
-                            initials = initialsOf(user.username),
-                            userName = user.username,
-                            supportingText = knownUserSupportingText(user, state.now),
-                            isLoading = state.restoringUsername == user.username,
-                            onClick = { if (!state.isBusy) onKnownUserClick(user.username) },
-                        )
+                        key(user.username) {
+                            KnownUserItem(
+                                initials = initialsOf(user.username),
+                                userName = user.username,
+                                supportingText = knownUserSupportingText(user, state.now),
+                                isLoading = state.restoringUsername == user.username,
+                                onClick = { onKnownUserClick(user.username) },
+                            )
+                        }
                     }
                 }
             }

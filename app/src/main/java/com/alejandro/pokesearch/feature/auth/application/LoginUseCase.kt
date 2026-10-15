@@ -1,6 +1,6 @@
 package com.alejandro.pokesearch.feature.auth.application
 
-import com.alejandro.pokesearch.feature.auth.domain.Clock
+import com.alejandro.pokesearch.core.domain.Clock
 import com.alejandro.pokesearch.feature.auth.domain.SessionRepository
 import com.alejandro.pokesearch.feature.auth.domain.User
 import com.alejandro.pokesearch.feature.auth.domain.UserRepository

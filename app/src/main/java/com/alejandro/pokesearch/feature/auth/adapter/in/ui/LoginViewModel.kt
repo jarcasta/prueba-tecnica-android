@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.alejandro.pokesearch.core.domain.Outcome
 import com.alejandro.pokesearch.feature.auth.application.LoginUseCase
 import com.alejandro.pokesearch.feature.auth.application.ObserveKnownUsersUseCase
-import com.alejandro.pokesearch.feature.auth.domain.Clock
+import com.alejandro.pokesearch.core.domain.Clock
 import com.alejandro.pokesearch.feature.auth.domain.Username
 import com.alejandro.pokesearch.feature.auth.domain.UsernameError
 import dagger.hilt.android.lifecycle.HiltViewModel

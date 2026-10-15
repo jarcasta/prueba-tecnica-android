@@ -25,7 +25,3 @@ interface SessionRepository {
 fun interface FavoriteCountReader {
     fun observeCountsByUser(): Flow<Map<UserId, Int>>
 }
-
-fun interface Clock {
-    fun now(): Instant
-}

@@ -1,7 +1,7 @@
 package com.alejandro.pokesearch.feature.auth.testing
 
+import com.alejandro.pokesearch.core.domain.Clock
 import com.alejandro.pokesearch.core.domain.getOrNull
-import com.alejandro.pokesearch.feature.auth.domain.Clock
 import com.alejandro.pokesearch.feature.auth.domain.FavoriteCountReader
 import com.alejandro.pokesearch.feature.auth.domain.SessionRepository
 import com.alejandro.pokesearch.feature.auth.domain.User

@@ -1,6 +1,6 @@
-package com.alejandro.pokesearch.feature.auth.adapter.out
+package com.alejandro.pokesearch.core.time
 
-import com.alejandro.pokesearch.feature.auth.domain.Clock
+import com.alejandro.pokesearch.core.domain.Clock
 import java.time.Instant
 import javax.inject.Inject
 
